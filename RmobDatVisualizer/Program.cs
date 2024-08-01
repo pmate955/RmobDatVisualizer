@@ -67,7 +67,7 @@ internal class Program
         g.DrawString("23h", font, brush, marginLeft - 40, marginTop + 23 * totalCellSize);
     }
 
-    static void DrawDayLabels(Graphics g, Font font, Brush brush, int marginLeft, int daysInMonth, int totalCellSize)
+    static void DrawDayLabels(Graphics g, Font font, Brush brush, int marginLeft, int marginTop, int daysInMonth, int totalCellSize)
     {
         // Add day labels
         for (int day = 1; day <= daysInMonth; day++)
@@ -75,17 +75,17 @@ internal class Program
             if (day == 1 || day == 5 || day == 10 || day == 15 || day == 20 || day == 25 || day == daysInMonth)
             {
                 if (day < 10)
-                    g.DrawString(day.ToString(), font, brush, marginLeft + (day - 1) * totalCellSize, 5);
+                    g.DrawString(day.ToString(), font, brush, marginLeft + (day - 1) * totalCellSize, marginTop);
                 else
-                    g.DrawString(day.ToString(), font, brush, marginLeft + (day - 1) * totalCellSize - 7, 5);
+                    g.DrawString(day.ToString(), font, brush, marginLeft + (day - 1) * totalCellSize - 7, marginTop);
 
             }
         }
     }
 
-    static void DrawScale(Graphics g, Font font, Brush brush, int marginLeft, int marginTop, int width, int height, int cellSize, int totalCellSize, int minCount, int maxCount, int cellPadding)
+    static void DrawScale(Graphics g, Font font, Brush brush, int marginLeft, int marginTop, int width, int height, int cellSize, int totalCellSize, int maxCount, int cellPadding)
     {
-        int scaleX = marginLeft + width + 10;
+        int scaleX = marginLeft + width + 20;
         int scaleYStart = marginTop;
         int scaleYEnd = marginTop + height;
         int scaleStep = (height - totalCellSize) / 23; // 24 values, 23 gaps
@@ -104,64 +104,75 @@ internal class Program
         g.DrawString("0", font, brush, scaleX + cellSize + 5, scaleYEnd - totalCellSize);
     }
 
-    static void DrawBarChart(Graphics g, List<(DateTime dateTime, int count)> data, Brush brush, int marginLeft, int marginTop, int cellSize, int totalCellSize, int bitmapHeight)
+    static void DrawLineChart(Graphics g, List<(DateTime dateTime, int count)> data, Brush brush, int marginLeft, int cellSize, int bitmapHeight)
     {
-        Font font = new Font("Arial", 10);
+        Font font = new Font("Arial", 15, FontStyle.Bold);
         int daysInMonth = DateTime.DaysInMonth(data.First().dateTime.Year, data.First().dateTime.Month);
         int[] daySums = new int[daysInMonth];
+        int allSum = 0;
 
         // Calculate sum for each day
         foreach (var item in data)
         {
             daySums[item.dateTime.Day - 1] += item.count;
+            allSum += item.count;
         }
 
-        int barWidth = 30; // Width of each bar
-        int barMargin = 5; // Margin between bars
-        int maxBarHeight = 300; // Max height for the bars
+        int maxBarHeight = 200; // Max height for the bars
         int maxDaySum = daySums.Max();
 
-        // Adjust height of the bitmap to accommodate the bar chart
+        // Adjust height of the bitmap to accommodate the line chart
         int chartHeight = maxBarHeight + 60; // Extra space for labels
 
-        // Draw the bar chart on the main bitmap
-        int chartMarginTop = bitmapHeight - chartHeight - 50; // Position the chart below the main grid
-        int chartWidth = daysInMonth * (barWidth + barMargin) + 60;
+        // Draw the line chart on the main bitmap
+        int chartMarginTop = bitmapHeight - chartHeight - 100; // Position the chart below the main grid
+        int chartWidth = daysInMonth * (cellSize + 3); // Width of the chart area
+        int spacing = 10;
 
-        // Draw the bar chart background
+        // Draw the chart background
         g.FillRectangle(Brushes.White, marginLeft, chartMarginTop, chartWidth, chartHeight);
 
-        // Draw bars
+        // Draw line chart
+        Point[] points = new Point[daysInMonth];
         for (int i = 0; i < daysInMonth; i++)
         {
-            int barHeight = (int)((double)daySums[i] / maxDaySum * maxBarHeight);
-            int x = marginLeft + i * (barWidth + barMargin) + 20;
-            int y = chartMarginTop + chartHeight - barHeight - 30;
-            g.FillRectangle(Brushes.Blue, x, y, barWidth, barHeight);
-
-            // Draw labels
-            g.DrawString(daySums[i].ToString(), font, brush, x + barWidth / 2 - 10, y - 20);
+            int x = marginLeft + i * (cellSize + 3) + spacing;
+            int y = chartMarginTop + chartHeight - (int)((double)daySums[i] / maxDaySum * maxBarHeight) - 30;
+            points[i] = new Point(x, y);
         }
 
-        // Draw x-axis labels
-        for (int i = 1; i <= daysInMonth; i++)
+        // Draw the lines
+        g.DrawLines(Pens.Blue, points);
+
+        // Draw the points
+        foreach (var point in points)
         {
-            if (i % 5 == 0 || i == 1)
-            {
-                g.DrawString(i.ToString(), font, brush, marginLeft + i * (barWidth + barMargin) - 10, chartMarginTop + chartHeight - 20);
-            }
-        }
+            g.FillEllipse(Brushes.Blue, point.X - 3, point.Y - 3, 6, 6);
+        }       
+
+        //// Draw x-axis labels
+        //for (int i = 1; i <= daysInMonth; i++)
+        //{
+        //    if (i % 5 == 0)
+        //    {
+        //        g.DrawString(i.ToString(), font, brush, marginLeft + (i - 1) * (cellSize + 3) + spacing, chartMarginTop + chartHeight - 15);
+        //    }
+        //}
 
         // Draw y-axis
-        g.DrawLine(Pens.Black, marginLeft, chartMarginTop, marginLeft, chartMarginTop + chartHeight); // Y-axis
-        g.DrawLine(Pens.Black, marginLeft, chartMarginTop + chartHeight, marginLeft + chartWidth, chartMarginTop + chartHeight); // X-axis
+        g.DrawLine(Pens.Black, marginLeft, chartMarginTop, marginLeft, chartMarginTop + chartHeight - 25); // Y-axis
+        g.DrawLine(Pens.Black, marginLeft, chartMarginTop + chartHeight - 25, marginLeft + chartWidth, chartMarginTop + chartHeight - 25); // X-axis
 
-        // Add title to the bar chart
-        g.DrawString("Daily Totals", font, brush, marginLeft + 10, chartMarginTop - 20);
+        // Draw y-axis labels
+        g.DrawString("0", font, brush, marginLeft - 30, chartMarginTop + chartHeight - 32);
+        g.DrawString(maxDaySum.ToString(), font, brush, marginLeft - 50, chartMarginTop + 10);
+
+        // Add title to the line chart
+        g.DrawString($"Daily Totals - Sum: {allSum}", font, brush, chartWidth / 2, chartMarginTop - 20);
     }
 
 
-    static void GenerateImage(List<(DateTime dateTime, int hour, int count)> data, string csvPath)
+    static void GenerateImage(List<(DateTime dateTime, int hour, int count)> data, string datPath)
     {
         int maxCount = data.Max(d => d.count);
         DateTime firstDate = data.First().dateTime;
@@ -173,17 +184,17 @@ internal class Program
         int width = daysInMonth * totalCellSize;
         int height = 24 * totalCellSize;
 
-        int marginLeft = 250;  // Left margin for labels and bar chart
-        int marginTop = 40;
+        int marginLeft = 50;  // Left margin for labels and bar chart
+        int marginTop = 100;
         int marginRight = 100; // Right margin for scale
 
-        Bitmap bitmap = new Bitmap(width + marginLeft + marginRight + 200, height + marginTop + 400);
+        Bitmap bitmap = new Bitmap(width + marginLeft + marginRight, height + marginTop + 400);
         using (Graphics g = Graphics.FromImage(bitmap))
         {
             g.Clear(Color.White);
 
             // Draw the grid background
-            g.FillRectangle(Brushes.Black, marginLeft, marginTop, width, height);
+            g.FillRectangle(Brushes.Black, marginLeft - cellPadding, marginTop - cellPadding, width + cellPadding, height + cellPadding);
 
             // Draw the data
             foreach (var item in data)
@@ -198,16 +209,18 @@ internal class Program
             {
                 using (Brush brush = new SolidBrush(Color.Black))
                 {
+
+                    g.DrawString($"{Path.GetFileNameWithoutExtension(datPath)}", font, brush, width / 2.0f, 20);
                     DrawHourLabels(g, font, brush, marginLeft, marginTop, cellSize, totalCellSize);
-                    DrawDayLabels(g, font, brush, marginLeft, daysInMonth, totalCellSize);
-                    DrawScale(g, font, brush, marginLeft, marginTop, width, height, cellSize, totalCellSize, 0, maxCount, cellPadding);
-                    DrawBarChart(g, data.Select(d => (d.dateTime, d.count)).ToList(), brush, 50, marginTop + height + 300, cellSize, totalCellSize, height + marginTop + 450);
+                    DrawDayLabels(g, font, brush, marginLeft, marginTop - 30, daysInMonth, totalCellSize);
+                    DrawScale(g, font, brush, marginLeft, marginTop, width, height, cellSize, totalCellSize, maxCount, cellPadding);
+                    DrawLineChart(g, data.Select(d => (d.dateTime, d.count)).ToList(), brush, 50, cellSize, height + marginTop + 450);
 
                 }
             }
         }
 
-        string outputFileName = $"{Path.GetFileNameWithoutExtension(csvPath)}_{DateTime.Now:yyyyMMddHHmmss}.png";
+        string outputFileName = $"{Path.GetFileNameWithoutExtension(datPath)}_{DateTime.Now:yyyyMMddHHmmss}.png";
         bitmap.Save(outputFileName);
         Console.WriteLine($"Image saved as {outputFileName}");
     }
