@@ -9,37 +9,108 @@ using System.Linq;
 
 internal class Program
 {
+    public struct AggregatedData
+    {
+        public AggregatedData(DateTime dateTime, int hour, int count)
+        {
+            this.dateTime = dateTime;
+            this.hour = hour;
+            this.count = count;
+        }
+
+        public DateTime dateTime;
+        public int hour;
+        public int count;
+
+    }
 
     private static void Main(string[] args)
     {
-
-        if (args.Length != 1)
+        try
         {
-            Console.WriteLine("Usage: Program <path_to_csv>");
-            return;
+            if (args.Length != 1)
+            {
+                Console.WriteLine("Usage: Program <path_to_csv>");
+                return;
+            }
+
+            string path = args[0];
+
+            FileAttributes attr = File.GetAttributes(path);
+
+            Bitmap res = new Bitmap(10, 10);
+
+            if (attr.HasFlag(FileAttributes.Directory))
+            {
+                Console.WriteLine("Read directory");
+
+                var paths = Directory.GetFiles(path, "RMOB-*.dat")
+                        .Select(Path.GetFileName)
+                        .OrderBy(fileName => fileName)
+                        .ToList();
+
+                List<Bitmap> graphList = new List<Bitmap>();
+                List<List<AggregatedData>> csvData = new List<List<AggregatedData>>();
+                int maxCount = 0;
+
+                for (int i = 0; i < paths.Count; i++)
+                {
+                    var data = ReadCsv(paths[i], out int localMax);
+
+                    if (data == null || data.Count == 0)
+                    {
+                        Console.WriteLine("No valid data found in the CSV file.");
+                        return;
+                    }
+                    
+                    if (localMax > maxCount)
+                        maxCount = localMax;
+
+                    csvData.Add(data);
+                }
+
+                for (int i = 0; i < paths.Count; i++)
+                {
+                    var gen = GenerateImage(csvData[i], paths[i], maxCount, i % 6 == 0, (i % 6 == 0 && i > 0) || i == paths.Count - 1);
+                    graphList.Add(gen);
+                    res = MergeImages(graphList);
+                }
+            }
+            else
+            {
+                Console.WriteLine("Read file");
+
+                if (!File.Exists(path))
+                {
+                    Console.WriteLine("The specified file does not exist.");
+                    return;
+                }
+
+                var data = ReadCsv(path, out int max);
+                if (data == null || data.Count == 0)
+                {
+                    Console.WriteLine("No valid data found in the CSV file.");
+                    return;
+                }
+
+                res = GenerateImage(data, path, max);
+            }
+
+            string outputFileName = $"{Path.GetFileNameWithoutExtension(path)}_{DateTime.Now:yyyyMMddHHmmss}.png";
+            res.Save(outputFileName);
+            Console.WriteLine($"Image saved as {outputFileName}");
         }
-
-        string csvPath = args[0];
-
-        if (!File.Exists(csvPath))
+        catch (Exception ex)
         {
-            Console.WriteLine("The specified file does not exist.");
-            return;
+            Console.WriteLine("Exception: " + ex.Data);
+            throw;
         }
-
-        var data = ReadCsv(csvPath);
-        if (data == null || data.Count == 0)
-        {
-            Console.WriteLine("No valid data found in the CSV file.");
-            return;
-        }
-
-        GenerateImage(data, csvPath);
     }
 
-    static List<(DateTime dateTime, int hour, int count)> ReadCsv(string path)
+    static List<AggregatedData> ReadCsv(string path, out int max)
     {
-        var data = new List<(DateTime dateTime, int hour, int count)>();
+        var data = new List<AggregatedData>();
+        var maxCount = 0;
 
         foreach (var line in File.ReadLines(path))
         {
@@ -50,9 +121,14 @@ internal class Program
                 int.TryParse(parts[1].Trim(), out int hour) &&
                 int.TryParse(parts[2].Trim(), out int count))
             {
-                data.Add((dateTime, hour, count));
+                data.Add(new AggregatedData(dateTime, hour, count));
+
+                if (count > maxCount)
+                    maxCount = count;
             }
         }
+
+        max = maxCount;
 
         return data;
     }
@@ -104,7 +180,7 @@ internal class Program
         g.DrawString("0", font, brush, scaleX + cellSize + 5, scaleYEnd - totalCellSize);
     }
 
-    static void DrawLineChart(Graphics g, List<(DateTime dateTime, int count)> data, Brush brush, int marginLeft, int cellSize, int bitmapHeight)
+    static void DrawLineChart(Graphics g, List<AggregatedData> data, Brush brush, int marginLeft, int cellSize, int bitmapHeight)
     {
         Font font = new Font("Arial", 15, FontStyle.Bold);
         int daysInMonth = DateTime.DaysInMonth(data.First().dateTime.Year, data.First().dateTime.Month);
@@ -148,7 +224,7 @@ internal class Program
         foreach (var point in points)
         {
             g.FillEllipse(Brushes.Blue, point.X - 3, point.Y - 3, 6, 6);
-        }       
+        }
 
         //// Draw x-axis labels
         //for (int i = 1; i <= daysInMonth; i++)
@@ -172,9 +248,8 @@ internal class Program
     }
 
 
-    static void GenerateImage(List<(DateTime dateTime, int hour, int count)> data, string datPath)
+    static Bitmap GenerateImage(List<AggregatedData> data, string datPath, int maxCount, bool hasLegend = true, bool hasScale = true)
     {
-        int maxCount = data.Max(d => d.count);
         DateTime firstDate = data.First().dateTime;
         int daysInMonth = DateTime.DaysInMonth(firstDate.Year, firstDate.Month);
         int cellSize = 20;
@@ -184,11 +259,12 @@ internal class Program
         int width = daysInMonth * totalCellSize;
         int height = 24 * totalCellSize;
 
-        int marginLeft = 50;  // Left margin for labels and bar chart
+        int marginLeft = hasLegend ? 50 : 0;  // Left margin for labels and bar chart
         int marginTop = 100;
-        int marginRight = 100; // Right margin for scale
+        int marginRight = hasScale ? 100 : 5; // Right margin for scale
 
         Bitmap bitmap = new Bitmap(width + marginLeft + marginRight, height + marginTop + 400);
+
         using (Graphics g = Graphics.FromImage(bitmap))
         {
             g.Clear(Color.White);
@@ -211,18 +287,22 @@ internal class Program
                 {
 
                     g.DrawString($"{Path.GetFileNameWithoutExtension(datPath)}", font, brush, width / 2.0f, 20);
-                    DrawHourLabels(g, font, brush, marginLeft, marginTop, cellSize, totalCellSize);
+
+                    if (hasLegend)
+                        DrawHourLabels(g, font, brush, marginLeft, marginTop, cellSize, totalCellSize);
+
                     DrawDayLabels(g, font, brush, marginLeft, marginTop - 30, daysInMonth, totalCellSize);
-                    DrawScale(g, font, brush, marginLeft, marginTop, width, height, cellSize, totalCellSize, maxCount, cellPadding);
-                    DrawLineChart(g, data.Select(d => (d.dateTime, d.count)).ToList(), brush, 50, cellSize, height + marginTop + 450);
+
+                    if (hasScale)
+                        DrawScale(g, font, brush, marginLeft, marginTop, width, height, cellSize, totalCellSize, maxCount, cellPadding);
+
+                    DrawLineChart(g, data, brush, 50, cellSize, height + marginTop + 450);
 
                 }
             }
         }
 
-        string outputFileName = $"{Path.GetFileNameWithoutExtension(datPath)}_{DateTime.Now:yyyyMMddHHmmss}.png";
-        bitmap.Save(outputFileName);
-        Console.WriteLine($"Image saved as {outputFileName}");
+        return bitmap;
     }
 
     static Color GetColorForValue(int value, int max)
@@ -230,6 +310,50 @@ internal class Program
         decimal percent = value / (decimal)max;
         int position = (int)Math.Floor(percent * (Scales.RmobColors.Count() - 1));
         return Scales.RmobColors[position];
+    }
+
+    static Bitmap MergeImages(List<Bitmap> images)
+    {
+        if (images.Count == 0)
+            throw new ArgumentException("Not enough input!");
+
+        int fixedHeight = images[0].Height;
+        int totalWidth = 0;
+        int currentRowWidth = 0;
+        int rows = (int)Math.Ceiling(images.Count / 6.0);
+
+        List<int> rowWidths = new List<int>();
+
+        for (int i = 0; i < images.Count; i++)
+        {
+            currentRowWidth += images[i].Width;
+            if ((i + 1) % 6 == 0 || i == images.Count - 1)
+            {
+                rowWidths.Add(currentRowWidth);
+                totalWidth = Math.Max(totalWidth, currentRowWidth);
+                currentRowWidth = 0;
+            }
+        }
+
+        Bitmap mergedBitmap = new Bitmap(totalWidth, fixedHeight * rows);
+        using (Graphics g = Graphics.FromImage(mergedBitmap))
+        {
+            g.Clear(Color.Black);
+            int x = 0, y = 0, imgIndex = 0;
+
+            foreach (int rowWidth in rowWidths)
+            {
+                x = 0;
+                for (int i = 0; i < 6 && imgIndex < images.Count; i++, imgIndex++)
+                {
+                    g.DrawImage(images[imgIndex], x, y);
+                    x += images[imgIndex].Width;
+                }
+                y += fixedHeight;
+            }
+        }
+
+        return mergedBitmap;
     }
 
 }
