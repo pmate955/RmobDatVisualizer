@@ -10,14 +10,14 @@ namespace RmobDatVisualizer
     {
         public AggregatedData(DateTime dateTime, int hour, int count)
         {
-            this.dateTime = dateTime;
-            this.hour = hour;
-            this.count = count;
+            this.EventDt = dateTime;
+            this.Hour = hour;
+            this.Count = count;
         }
 
-        public DateTime dateTime;
-        public int hour;
-        public int count;
+        public DateTime EventDt;
+        public int Hour;
+        public int Count;
 
     }
 }

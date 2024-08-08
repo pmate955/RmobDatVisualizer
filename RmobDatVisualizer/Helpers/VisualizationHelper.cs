@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,7 +15,7 @@ namespace RmobDatVisualizer
 
         public static Bitmap GenerateImage(List<AggregatedData> data, string datPath, int maxCount, bool hasLegend = true, bool hasScale = true)
         {
-            DateTime firstDate = data.First().dateTime;
+            DateTime firstDate = data.First().EventDt;
             int daysInMonth = DateTime.DaysInMonth(firstDate.Year, firstDate.Month);
             int cellSize = 20;
             int cellPadding = 3;
@@ -23,7 +24,7 @@ namespace RmobDatVisualizer
             int width = daysInMonth * totalCellSize;
             int height = 24 * totalCellSize;
 
-            int marginLeft = hasLegend ? 50 : 0;  // Left margin for labels and bar chart
+            int marginLeft = hasLegend ? 50 : 5;  // Left margin for labels and bar chart
             int marginTop = 100;
             int marginRight = hasScale ? 100 : 5; // Right margin for scale
 
@@ -39,9 +40,9 @@ namespace RmobDatVisualizer
                 // Draw the data
                 foreach (var item in data)
                 {
-                    int x = marginLeft + (item.dateTime.Day - 1) * totalCellSize;
-                    int y = marginTop + item.hour * totalCellSize;
-                    Color color = Scales.GetColorForValue(item.count, maxCount);
+                    int x = marginLeft + (item.EventDt.Day - 1) * totalCellSize;
+                    int y = marginTop + item.Hour * totalCellSize;
+                    Color color = Scales.GetColorForValue(item.Count, maxCount);
                     g.FillRectangle(new SolidBrush(color), x, y, cellSize, cellSize);
                 }
 
@@ -49,8 +50,9 @@ namespace RmobDatVisualizer
                 {
                     using (Brush brush = new SolidBrush(Color.Black))
                     {
+                        string title = data[0].EventDt.ToString("yyyy MMMM", CultureInfo.InvariantCulture);
 
-                        g.DrawString($"{Path.GetFileNameWithoutExtension(datPath)}", font, brush, width / 2.0f, 20);
+                        g.DrawString(title, font, brush, width / 2.0f, 20);
 
                         if (hasLegend)
                             DrawHourLabels(g, font, brush, marginLeft, marginTop, cellSize, totalCellSize);
@@ -165,15 +167,15 @@ namespace RmobDatVisualizer
         static void DrawLineChart(Graphics g, List<AggregatedData> data, Brush brush, int marginLeft, int cellSize, int bitmapHeight)
         {
             Font font = new Font("Arial", 15, FontStyle.Bold);
-            int daysInMonth = DateTime.DaysInMonth(data.First().dateTime.Year, data.First().dateTime.Month);
+            int daysInMonth = DateTime.DaysInMonth(data.First().EventDt.Year, data.First().EventDt.Month);
             int[] daySums = new int[daysInMonth];
             int allSum = 0;
 
             // Calculate sum for each day
             foreach (var item in data)
             {
-                daySums[item.dateTime.Day - 1] += item.count;
-                allSum += item.count;
+                daySums[item.EventDt.Day - 1] += item.Count;
+                allSum += item.Count;
             }
 
             int maxBarHeight = 200; // Max height for the bars
