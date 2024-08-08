@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RmobDatVisualizet
+namespace RmobDatVisualizer
 {
     public class Scales
     {
@@ -36,5 +36,12 @@ namespace RmobDatVisualizet
             Color.FromArgb(255, 80, 0),
             Color.FromArgb(255, 0, 0)
         };
+
+        public static Color GetColorForValue(int value, int max)
+        {
+            decimal percent = value / (decimal)max;
+            int position = (int)Math.Floor(percent * (RmobColors.Count() - 1));
+            return RmobColors[position];
+        }
     }
 }
