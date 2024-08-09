@@ -13,7 +13,7 @@ namespace RmobDatVisualizer
     {
         #region Public methods
 
-        public static Bitmap GenerateImage(List<AggregatedData> data, string datPath, int maxCount, bool hasLegend = true, bool hasScale = true)
+        public static Bitmap GenerateImage(List<AggregatedData> data, int maxCount, bool hasLegend = true, bool hasScale = true)
         {
             DateTime firstDate = data.First().EventDt;
             int daysInMonth = DateTime.DaysInMonth(firstDate.Year, firstDate.Month);
@@ -55,7 +55,7 @@ namespace RmobDatVisualizer
                         g.DrawString(title, font, brush, width / 2.0f, 20);
 
                         if (hasLegend)
-                            DrawHourLabels(g, font, brush, marginLeft, marginTop, cellSize, totalCellSize);
+                            DrawHourLabels(g, font, brush, marginLeft, marginTop, totalCellSize);
 
                         DrawDayLabels(g, font, brush, marginLeft, marginTop - 30, daysInMonth, totalCellSize);
 
@@ -117,7 +117,7 @@ namespace RmobDatVisualizer
 
         #endregion
 
-        static void DrawHourLabels(Graphics g, Font font, Brush brush, int marginLeft, int marginTop, int cellSize, int totalCellSize)
+        static void DrawHourLabels(Graphics g, Font font, Brush brush, int marginLeft, int marginTop, int totalCellSize)
         {
             // Add hour labels
             g.DrawString("0h", font, brush, marginLeft - 40, marginTop);
@@ -209,15 +209,6 @@ namespace RmobDatVisualizer
             {
                 g.FillEllipse(Brushes.Blue, point.X - 3, point.Y - 3, 6, 6);
             }
-
-            //// Draw x-axis labels
-            //for (int i = 1; i <= daysInMonth; i++)
-            //{
-            //    if (i % 5 == 0)
-            //    {
-            //        g.DrawString(i.ToString(), font, brush, marginLeft + (i - 1) * (cellSize + 3) + spacing, chartMarginTop + chartHeight - 15);
-            //    }
-            //}
 
             // Draw y-axis
             g.DrawLine(Pens.Black, marginLeft, chartMarginTop, marginLeft, chartMarginTop + chartHeight - 25); // Y-axis
