@@ -9,7 +9,7 @@ namespace RmobDatVisualizer
 {
     public class CsvHelper
     {
-        public static List<AggregatedData> ReadCsv(string path, out int max)
+        public static List<AggregatedData> ReadCsv(string path, out int max, out int dailySumMax)
         {
             var data = new List<AggregatedData>();
             var maxCount = 0;
@@ -31,6 +31,10 @@ namespace RmobDatVisualizer
             }
 
             max = maxCount;
+
+            dailySumMax = data.GroupBy(d => d.EventDt.Date)
+                   .Select(g => g.Sum(d => d.Count))
+                   .Max();
 
             return data;
         }

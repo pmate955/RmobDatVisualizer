@@ -13,7 +13,7 @@ namespace RmobDatVisualizer
     {
         #region Public methods
 
-        public static Bitmap GenerateImage(List<AggregatedData> data, int maxCount, bool hasLegend = true, bool hasScale = true)
+        public static Bitmap GenerateImage(List<AggregatedData> data, int maxCount, int dailySumMax, bool hasLegend = true, bool hasScale = true)
         {
             DateTime firstDate = data.First().EventDt;
             int daysInMonth = DateTime.DaysInMonth(firstDate.Year, firstDate.Month);
@@ -62,7 +62,7 @@ namespace RmobDatVisualizer
                         if (hasScale)
                             DrawScale(g, font, brush, marginLeft, marginTop, width, height, cellSize, totalCellSize, maxCount, cellPadding);
 
-                        DrawLineChart(g, data, brush, 50, cellSize, height + marginTop + 450);
+                        DrawBarChart(g, data, brush, marginLeft, cellSize, height + marginTop + 450, dailySumMax, hasLegend);
 
                     }
                 }
@@ -71,7 +71,7 @@ namespace RmobDatVisualizer
             return bitmap;
         }
 
-        public static Bitmap MergeImages(List<Bitmap> images)
+        public static Bitmap MergeImages(List<Bitmap> images, int countByRow)
         {
             if (images.Count == 0)
                 throw new ArgumentException("Not enough input!");
@@ -79,14 +79,14 @@ namespace RmobDatVisualizer
             int fixedHeight = images[0].Height;
             int totalWidth = 0;
             int currentRowWidth = 0;
-            int rows = (int)Math.Ceiling(images.Count / 6.0);
+            int rows = (int)Math.Ceiling(images.Count / (decimal)countByRow);
 
             List<int> rowWidths = new List<int>();
 
             for (int i = 0; i < images.Count; i++)
             {
                 currentRowWidth += images[i].Width;
-                if ((i + 1) % 6 == 0 || i == images.Count - 1)
+                if ((i + 1) % countByRow == 0 || i == images.Count - 1)
                 {
                     rowWidths.Add(currentRowWidth);
                     totalWidth = Math.Max(totalWidth, currentRowWidth);
@@ -103,7 +103,7 @@ namespace RmobDatVisualizer
                 foreach (int rowWidth in rowWidths)
                 {
                     x = 0;
-                    for (int i = 0; i < 6 && imgIndex < images.Count; i++, imgIndex++)
+                    for (int i = 0; i < countByRow && imgIndex < images.Count; i++, imgIndex++)
                     {
                         g.DrawImage(images[imgIndex], x, y);
                         x += images[imgIndex].Width;
@@ -164,7 +164,7 @@ namespace RmobDatVisualizer
             g.DrawString("0", font, brush, scaleX + cellSize + 5, scaleYEnd - totalCellSize);
         }
 
-        static void DrawLineChart(Graphics g, List<AggregatedData> data, Brush brush, int marginLeft, int cellSize, int bitmapHeight)
+        static void DrawBarChart(Graphics g, List<AggregatedData> data, Brush brush, int marginLeft, int cellSize, int bitmapHeight, int maxDaySum, bool hasLegend)
         {
             Font font = new Font("Arial", 15, FontStyle.Bold);
             int daysInMonth = DateTime.DaysInMonth(data.First().EventDt.Year, data.First().EventDt.Month);
@@ -179,15 +179,14 @@ namespace RmobDatVisualizer
             }
 
             int maxBarHeight = 200; // Max height for the bars
-            int maxDaySum = daySums.Max();
 
             // Adjust height of the bitmap to accommodate the line chart
             int chartHeight = maxBarHeight + 60; // Extra space for labels
 
             // Draw the line chart on the main bitmap
-            int chartMarginTop = bitmapHeight - chartHeight - 100; // Position the chart below the main grid
-            int chartWidth = daysInMonth * (cellSize + 3); // Width of the chart area
             int spacing = 10;
+            int chartMarginTop = bitmapHeight - chartHeight - 100; // Position the chart below the main grid
+            int chartWidth = daysInMonth * (cellSize + 3) + spacing; // Width of the chart area
 
             // Draw the chart background
             g.FillRectangle(Brushes.White, marginLeft, chartMarginTop, chartWidth, chartHeight);
@@ -199,27 +198,23 @@ namespace RmobDatVisualizer
                 int x = marginLeft + i * (cellSize + 3) + spacing;
                 int y = chartMarginTop + chartHeight - (int)((double)daySums[i] / maxDaySum * maxBarHeight) - 30;
                 points[i] = new Point(x, y);
-            }
 
-            // Draw the lines
-            g.DrawLines(Pens.Blue, points);
-
-            // Draw the points
-            foreach (var point in points)
-            {
-                g.FillEllipse(Brushes.Blue, point.X - 3, point.Y - 3, 6, 6);
+                int barHeight = (int)((double)daySums[i] / maxDaySum * maxBarHeight);
+                y = chartMarginTop + chartHeight - barHeight - 30;
+                g.FillRectangle(Brushes.Blue, x - (cellSize / 2), y, cellSize - 3, barHeight);
             }
 
             // Draw y-axis
-            g.DrawLine(Pens.Black, marginLeft, chartMarginTop, marginLeft, chartMarginTop + chartHeight - 25); // Y-axis
             g.DrawLine(Pens.Black, marginLeft, chartMarginTop + chartHeight - 25, marginLeft + chartWidth, chartMarginTop + chartHeight - 25); // X-axis
 
-            // Draw y-axis labels
-            g.DrawString("0", font, brush, marginLeft - 30, chartMarginTop + chartHeight - 32);
-            g.DrawString(maxDaySum.ToString(), font, brush, marginLeft - 50, chartMarginTop + 10);
-
+            if (hasLegend)
+            {                
+                g.DrawLine(Pens.Black, marginLeft, chartMarginTop, marginLeft, chartMarginTop + chartHeight - 25); // Y-axis
+                g.DrawString("0", font, brush, marginLeft - 30, chartMarginTop + chartHeight - 32);
+                g.DrawString(maxDaySum.ToString(), font, brush, marginLeft - 50, chartMarginTop + 10);
+            }
             // Add title to the line chart
-            g.DrawString($"Daily Totals - Sum: {allSum}", font, brush, chartWidth / 2, chartMarginTop - 20);
+            g.DrawString($"Daily Totals - Sum: {allSum}", font, brush, (chartWidth / 2) - 50, chartMarginTop - 20);
         }
     }
 }
