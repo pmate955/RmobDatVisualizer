@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RmobDatVisualizer
+namespace RmobDatVisualizer.Service
 {
     public class Scales
     {

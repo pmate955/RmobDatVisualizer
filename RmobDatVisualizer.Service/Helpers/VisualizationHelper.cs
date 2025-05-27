@@ -5,15 +5,14 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static Program;
 
-namespace RmobDatVisualizer
+namespace RmobDatVisualizer.Service
 {
     public class VisualizationHelper
     {
         #region Public methods
 
-        public static Bitmap GenerateImage(List<AggregatedData> data, int maxCount, int dailySumMax, bool hasLegend = true, bool hasScale = true)
+        public static Bitmap GenerateImage(List<AggregatedData> data, int maxCount, bool hasLegend = true, bool hasScale = true)
         {
             DateTime firstDate = data.First().EventDt;
             int daysInMonth = DateTime.DaysInMonth(firstDate.Year, firstDate.Month);
@@ -62,7 +61,7 @@ namespace RmobDatVisualizer
                         if (hasScale)
                             DrawScale(g, font, brush, marginLeft, marginTop, width, height, cellSize, totalCellSize, maxCount, cellPadding);
 
-                        DrawBarChart(g, data, brush, marginLeft, cellSize, height + marginTop + 450, dailySumMax, hasLegend);
+                        DrawBarChart(g, data, brush, marginLeft, cellSize, height + marginTop + 450, maxCount, hasLegend);
 
                     }
                 }
@@ -168,13 +167,15 @@ namespace RmobDatVisualizer
         {
             Font font = new Font("Arial", 15, FontStyle.Bold);
             int daysInMonth = DateTime.DaysInMonth(data.First().EventDt.Year, data.First().EventDt.Month);
-            int[] daySums = new int[daysInMonth];
+            int[] dayMax = new int[daysInMonth];
             int allSum = 0;
 
             // Calculate sum for each day
             foreach (var item in data)
             {
-                daySums[item.EventDt.Day - 1] += item.Count;
+                if (item.Count > dayMax[item.EventDt.Day - 1])
+                    dayMax[item.EventDt.Day - 1] = item.Count;
+
                 allSum += item.Count;
             }
 
@@ -196,10 +197,10 @@ namespace RmobDatVisualizer
             for (int i = 0; i < daysInMonth; i++)
             {
                 int x = marginLeft + i * (cellSize + 3) + spacing;
-                int y = chartMarginTop + chartHeight - (int)((double)daySums[i] / maxDaySum * maxBarHeight) - 30;
+                int y = chartMarginTop + chartHeight - (int)((double)dayMax[i] / maxDaySum * maxBarHeight) - 30;
                 points[i] = new Point(x, y);
 
-                int barHeight = (int)((double)daySums[i] / maxDaySum * maxBarHeight);
+                int barHeight = (int)((double)dayMax[i] / maxDaySum * maxBarHeight);
                 y = chartMarginTop + chartHeight - barHeight - 30;
                 g.FillRectangle(Brushes.Blue, x - (cellSize / 2), y, cellSize - 3, barHeight);
             }
@@ -214,7 +215,7 @@ namespace RmobDatVisualizer
                 g.DrawString(maxDaySum.ToString(), font, brush, marginLeft - 50, chartMarginTop + 10);
             }
             // Add title to the line chart
-            g.DrawString($"Daily Totals - Sum: {allSum}", font, brush, (chartWidth / 2) - 50, chartMarginTop - 20);
+            g.DrawString($"Daily Maximums - Sum: {allSum}", font, brush, (chartWidth / 2) - 50, chartMarginTop - 20);
         }
     }
 }

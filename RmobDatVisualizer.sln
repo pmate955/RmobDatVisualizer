@@ -3,7 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.3.32901.215
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RmobDatVisualizer", "RmobDatVisualizer\RmobDatVisualizer.csproj", "{5AE3BE6E-A851-4C06-AB53-5E52273468A4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RmobDatVisualizer.Console", "RmobDatVisualizer\RmobDatVisualizer.Console.csproj", "{5AE3BE6E-A851-4C06-AB53-5E52273468A4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RmobDatVisualizer.Service", "RmobDatVisualizer.Service\RmobDatVisualizer.Service.csproj", "{3F344B36-3358-471F-8388-F64FE46E3F2A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RmobDatVisualizer.GUI", "RmobDatVisualizer.GUI\RmobDatVisualizer.GUI.csproj", "{5076D808-C806-4B78-8749-0D7DBE7ED674}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +19,14 @@ Global
 		{5AE3BE6E-A851-4C06-AB53-5E52273468A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5AE3BE6E-A851-4C06-AB53-5E52273468A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5AE3BE6E-A851-4C06-AB53-5E52273468A4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3F344B36-3358-471F-8388-F64FE46E3F2A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3F344B36-3358-471F-8388-F64FE46E3F2A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3F344B36-3358-471F-8388-F64FE46E3F2A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3F344B36-3358-471F-8388-F64FE46E3F2A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5076D808-C806-4B78-8749-0D7DBE7ED674}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5076D808-C806-4B78-8749-0D7DBE7ED674}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5076D808-C806-4B78-8749-0D7DBE7ED674}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5076D808-C806-4B78-8749-0D7DBE7ED674}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

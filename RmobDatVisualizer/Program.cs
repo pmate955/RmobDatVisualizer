@@ -1,4 +1,4 @@
-﻿using RmobDatVisualizer;
+﻿using RmobDatVisualizer.Service;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -58,13 +58,12 @@ internal class Program
         if (!File.Exists(path))
             throw new Exception("The specified file does not exist.");
             
-
-        var data = CsvHelper.ReadCsv(path, out int max, out int dailySumMax);
+        var data = CsvHelper.ReadCsv(path, out int max);
+        
         if (data == null || data.Count == 0)
             throw new Exception("No valid data found in the CSV file.");
 
-
-        return VisualizationHelper.GenerateImage(data, max, dailySumMax);
+        return VisualizationHelper.GenerateImage(data, max);
     }
 
     static Bitmap ProcessDirectory(string path)
@@ -81,11 +80,10 @@ internal class Program
         List<Bitmap> graphList = new List<Bitmap>();
         List<List<AggregatedData>> csvData = new List<List<AggregatedData>>();
         int maxCount = 0;
-        int dailySumMax = 0;
 
         for (int i = 0; i < paths.Count; i++)
         {
-            var data = CsvHelper.ReadCsv(paths[i], out int localMax, out int localDailySumMax);
+            var data = CsvHelper.ReadCsv(paths[i], out int localMax);
 
             if (data == null || data.Count == 0)
             {
@@ -95,19 +93,15 @@ internal class Program
             if (localMax > maxCount)
                 maxCount = localMax;
 
-            if (localDailySumMax > dailySumMax)
-                dailySumMax = localDailySumMax;
-
             csvData.Add(data);
         }
 
         for (int i = 0; i < paths.Count; i++)
         {
-            var gen = VisualizationHelper.GenerateImage(csvData[i], maxCount, dailySumMax, i % countByRow == 0, (i % countByRow == countByRow - 1 && i > 0) || i == paths.Count - 1);
+            var gen = VisualizationHelper.GenerateImage(csvData[i], maxCount, i % countByRow == 0, (i % countByRow == countByRow - 1 && i > 0) || i == paths.Count - 1);
             graphList.Add(gen);
         }
 
         return VisualizationHelper.MergeImages(graphList, countByRow);
-    }
-    
+    }    
 }
