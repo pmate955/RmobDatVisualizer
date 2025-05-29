@@ -12,7 +12,7 @@ namespace RmobDatVisualizer.Service
     {
         #region Public methods
 
-        public static Bitmap GenerateImage(List<AggregatedData> data, int maxCount, bool hasLegend = true, bool hasScale = true)
+        public static Bitmap GenerateImage(List<AggregatedData> data, int maxCount, Color[] colors, bool hasLegend = true, bool hasScale = true)
         {
             DateTime firstDate = data.First().EventDt;
             int daysInMonth = DateTime.DaysInMonth(firstDate.Year, firstDate.Month);
@@ -41,7 +41,7 @@ namespace RmobDatVisualizer.Service
                 {
                     int x = marginLeft + (item.EventDt.Day - 1) * totalCellSize;
                     int y = marginTop + item.Hour * totalCellSize;
-                    Color color = Scales.GetColorForValue(item.Count, maxCount);
+                    Color color = Scales.GetColorForValue(colors, item.Count, maxCount);
                     g.FillRectangle(new SolidBrush(color), x, y, cellSize, cellSize);
                 }
 
@@ -59,7 +59,7 @@ namespace RmobDatVisualizer.Service
                         DrawDayLabels(g, font, brush, marginLeft, marginTop - 30, daysInMonth, totalCellSize);
 
                         if (hasScale)
-                            DrawScale(g, font, brush, marginLeft, marginTop, width, height, cellSize, totalCellSize, maxCount, cellPadding);
+                            DrawScale(g, font, brush, marginLeft, marginTop, width, height, cellSize, totalCellSize, maxCount, cellPadding, colors);
 
                         DrawBarChart(g, data, brush, marginLeft, cellSize, height + marginTop + 450, maxCount, hasLegend);
 
@@ -142,7 +142,7 @@ namespace RmobDatVisualizer.Service
             }
         }
 
-        static void DrawScale(Graphics g, Font font, Brush brush, int marginLeft, int marginTop, int width, int height, int cellSize, int totalCellSize, int maxCount, int cellPadding)
+        static void DrawScale(Graphics g, Font font, Brush brush, int marginLeft, int marginTop, int width, int height, int cellSize, int totalCellSize, int maxCount, int cellPadding, Color[] colors)
         {
             int scaleX = marginLeft + width + 20;
             int scaleYStart = marginTop;
@@ -155,7 +155,7 @@ namespace RmobDatVisualizer.Service
             for (int i = 0; i < 24; i++)
             {
                 int y = scaleYStart + i2-- * scaleStep;
-                g.FillRectangle(new SolidBrush(Scales.GetColorForValue(i, 24)), scaleX, y, cellSize, cellSize);
+                g.FillRectangle(new SolidBrush(Scales.GetColorForValue(colors, i, 24)), scaleX, y, cellSize, cellSize);
             }
 
             g.DrawString(maxCount.ToString(), font, brush, scaleX + cellSize, scaleYStart - 3);

@@ -63,7 +63,7 @@ internal class Program
         if (data == null || data.Count == 0)
             throw new Exception("No valid data found in the CSV file.");
 
-        return VisualizationHelper.GenerateImage(data, max);
+        return VisualizationHelper.GenerateImage(data, max, Scales.RmobColors);
     }
 
     static Bitmap ProcessDirectory(string path)
@@ -98,7 +98,7 @@ internal class Program
 
         for (int i = 0; i < paths.Count; i++)
         {
-            var gen = VisualizationHelper.GenerateImage(csvData[i], maxCount, i % countByRow == 0, (i % countByRow == countByRow - 1 && i > 0) || i == paths.Count - 1);
+            var gen = VisualizationHelper.GenerateImage(csvData[i], maxCount, Scales.RmobColors, i % countByRow == 0, (i % countByRow == countByRow - 1 && i > 0) || i == paths.Count - 1);
             graphList.Add(gen);
         }
 

@@ -3,13 +3,80 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:RmobDatVisualizer.GUI"
         mc:Ignorable="d"
-        Title="RmobDatVisualizer" Height="250" Width="400">
-    <Grid>
-        <Button x:Name="OpenBtn" Content="Open" HorizontalAlignment="Left" Margin="31,39,0,0" VerticalAlignment="Top" Width="130" Height="35" Click="OnOpenBtnClick"/>
-        <Button x:Name="GeneraterBtn" Content="Generate" HorizontalAlignment="Left" Margin="221,39,0,0" VerticalAlignment="Top" Height="35" Width="102" Click="GeneraterBtn_Click"/>
-        <Label x:Name="StatusLbl" Content="" HorizontalAlignment="Left" Margin="45,91,0,0" VerticalAlignment="Top"/>
+        xmlns:local="clr-namespace:RmobDatVisualizer.GUI"
+        Title="RmobDatVisualizer" Height="300" Width="420">
+    <Window.DataContext>
+        <local:MainViewModel />
+    </Window.DataContext>
+    <Window.Resources>
+        <local:RmobEnumToBoolConverter x:Key="RmobEnumToBoolConverter"/>
+        <local:VisualizationTypeToBooleanConverter x:Key="RmobConverter" TargetType="Rmob"/>
+        <local:VisualizationTypeToBooleanConverter x:Key="MeteorConverter" TargetType="MeteorShower"/>
+    </Window.Resources>
+    <Grid Margin="10,10">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+            <ColumnDefinition Width="200"></ColumnDefinition>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition></RowDefinition>
+            <RowDefinition></RowDefinition>
+        </Grid.RowDefinitions>
+
+        <Button Grid.Row="0" Grid.Column="0" x:Name="OpenBtn" Content="Open" HorizontalAlignment="Center"  VerticalAlignment="Top" Width="80" Height="35" Click="OnOpenBtnClick"/>
+        <Button Grid.Row="0" Grid.Column="2" x:Name="GeneraterBtn" Content="Generate" HorizontalAlignment="Center" VerticalAlignment="Top" Height="35" Width="80" Click="GeneraterBtn_Click"/>
+
+        <GroupBox Padding="10" Grid.Row="0" Grid.Column="1" Header="Type" HorizontalAlignment="Center" VerticalAlignment="Top">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="20"/>
+                    <RowDefinition Height="20"/>
+                </Grid.RowDefinitions>
+
+                <RadioButton Grid.Row="0" Content="RMOB visualization" x:Name="rbtnRmobVisualization" GroupName="typeGroup" IsChecked="{Binding SelectedType, Converter={StaticResource RmobEnumToBoolConverter}, ConverterParameter=Rmob}"/>
+                <RadioButton Grid.Row="1" Content="Meteor shower" x:Name="rbtnMeteorShower" GroupName="typeGroup" IsChecked="{Binding SelectedType, Converter={StaticResource RmobEnumToBoolConverter}, ConverterParameter=MeteorShower}"/>
+            </Grid>
+        </GroupBox>
+
+        <GroupBox Padding="10" Grid.ColumnSpan="2" Header="RMOB Visualization" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,107,0,0" Grid.RowSpan="2" Width="Auto">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="30"></RowDefinition>
+                    <RowDefinition Height="30"></RowDefinition>
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,10,0">Months per row:</TextBlock>
+                <TextBox Grid.Row="0" Grid.Column="1" Width="20" VerticalAlignment="Center" HorizontalAlignment="Left">
+                    <TextBox.Text>
+                        <Binding Path="RmobMonthsPerRow" UpdateSourceTrigger="PropertyChanged" ValidatesOnDataErrors="True">
+                            <Binding.ValidationRules>
+                                <local:NumericValidationRule />
+                            </Binding.ValidationRules>
+                        </Binding>
+                    </TextBox.Text>
+                    <TextBox.IsEnabled>
+                        <Binding Path="SelectedType" Converter="{StaticResource RmobConverter}"/>
+                    </TextBox.IsEnabled>
+                </TextBox>
+
+                <TextBlock Grid.Row="1" Grid.Column="0" Text="Scale:" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,10,0" />
+                <ComboBox Grid.Row="1" Grid.Column="1"  Width="100" VerticalAlignment="Center" HorizontalAlignment="Left" 
+                        ItemsSource="{Binding AvailableScales}"
+                        SelectedItem="{Binding SelectedRmobScale, Mode=TwoWay}">
+                    <ComboBox.IsEnabled>
+                        <Binding Path="SelectedType" Converter="{StaticResource RmobConverter}"/>
+                    </ComboBox.IsEnabled>
+                </ComboBox>
+            </Grid>
+        </GroupBox>
+
+        <Label  Grid.Row="1" Grid.Column="2" Content="{Binding StatusText}" x:Name="StatusLbl" HorizontalAlignment="Center" VerticalAlignment="Top"/>
 
     </Grid>
 </Window>
