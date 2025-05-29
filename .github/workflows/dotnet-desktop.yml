@@ -56,7 +56,9 @@ jobs:
                              # https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idruns-on
 
     env:
-      Solution_Name: RmobDatVisualizer.sln                       
+      Solution_Name: RmobDatVisualizer.sln
+      Wpf_Project_Path: RmobDatVisualizer.GUI\RmobDatVisualizer.GUI.csproj
+      Wap_Project_Directory: RmobDatVisualizer.GUI
 
     steps:
     - name: Checkout
