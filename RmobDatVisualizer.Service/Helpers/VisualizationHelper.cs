@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -12,7 +13,7 @@ namespace RmobDatVisualizer.Service
     {
         #region Public methods
 
-        public static Bitmap GenerateImage(List<AggregatedData> data, int maxCount, Color[] colors, bool hasLegend = true, bool hasScale = true, bool hasBarChart = true)
+        public static Bitmap GenerateRmobImage(List<AggregatedData> data, int maxCount, Color[] colors, bool hasLegend = true, bool hasScale = true, bool hasBarChart = true)
         {
             DateTime firstDate = data.First().EventDt;
             int daysInMonth = DateTime.DaysInMonth(firstDate.Year, firstDate.Month);
@@ -115,6 +116,104 @@ namespace RmobDatVisualizer.Service
             return mergedBitmap;
         }
 
+        public static Bitmap GenerateHistogram(List<AggregatedData> data, DateTime start, DateTime end, int imageWidth = 1200, int imageHeight = 600, bool showGrid = true)
+        {
+            var hours = new List<DateTime>();
+            DateTime current = new DateTime(start.Year, start.Month, start.Day, start.Hour, 0, 0);
+            while (current <= end)
+            {
+                hours.Add(current);
+                current = current.AddHours(1);
+            }
+
+            var countsPerHour = hours.Select(h =>
+            {
+                var item = data.FirstOrDefault(d => d.EventDt.Date == h.Date && d.Hour == h.Hour);
+                return item.EventDt == DateTime.MinValue ? 0 : item.Count;
+            }).ToList();
+
+            int marginLeft = 60;
+            int marginBottom = 90;
+            int marginTop = 20;
+            int marginRight = 60;
+
+            int plotWidth = imageWidth - marginLeft - marginRight;
+            int plotHeight = imageHeight - marginTop - marginBottom;
+
+            Bitmap bmp = new Bitmap(imageWidth, imageHeight);
+            using (Graphics g = Graphics.FromImage(bmp))
+            {
+                g.SmoothingMode = SmoothingMode.AntiAlias;
+                g.Clear(Color.White);
+
+                int maxCount = countsPerHour.Max();
+                if (maxCount == 0) maxCount = 1;
+
+                float barSpacing = 2;
+                float barWidth = (float)plotWidth / countsPerHour.Count - barSpacing;
+
+                // Draw bars
+                for (int i = 0; i < countsPerHour.Count; i++)
+                {
+                    float x = marginLeft + i * (barWidth + barSpacing);
+                    float barHeight = (float)countsPerHour[i] / maxCount * plotHeight;
+                    float y = marginTop + (plotHeight - barHeight);
+
+                    RectangleF barRect = new RectangleF(x, y, barWidth, barHeight);
+                    g.FillRectangle(Brushes.SteelBlue, barRect);
+                }
+
+                using (Pen axisPen = new Pen(Color.Black, 1))
+                {
+                    // X axis
+                    g.DrawLine(axisPen, marginLeft, marginTop + plotHeight, imageWidth - marginRight, marginTop + plotHeight);
+                    // Y axis
+                    g.DrawLine(axisPen, marginLeft - 5, marginTop, marginLeft - 5, marginTop + plotHeight);
+                }
+
+                using (Font font = new Font("Arial", 16))
+                using (Brush textBrush = new SolidBrush(Color.Black))
+                {
+                    // Y-axis labels
+                    int ySteps = 5;
+                    for (int i = 0; i <= ySteps; i++)
+                    {
+                        int val = maxCount * i / ySteps;
+                        float y = marginTop + plotHeight - (float)val / maxCount * plotHeight;
+
+                        if (showGrid)
+                            g.DrawLine(Pens.Gray, marginLeft - 5, y, imageWidth - marginRight, y);
+                        else
+                            g.DrawLine(Pens.Gray, marginLeft - 5, y, marginLeft, y);
+
+                        g.DrawString(val.ToString(), font, textBrush, 2, y - 6);
+                    }
+
+                    // X-axis labels (sparse for readability)
+                    for (int i = 0; i < hours.Count; i++)
+                    {
+                        if (i % Math.Max(1, hours.Count / 20) == 0)
+                        {
+                            float x = marginLeft + i * (barWidth + barSpacing) + barWidth / 2;
+
+                            // Draw vertical grid line
+                            if (showGrid)
+                                g.DrawLine(Pens.Gray, x, marginTop, x, marginTop + plotHeight);
+
+                            // Draw angled label
+                            string label = hours[i].ToString("MM-dd HH");
+                            g.TranslateTransform(x, marginTop + plotHeight + 5);
+                            g.RotateTransform(45);
+                            g.DrawString(label, font, textBrush, 0, 0);
+                            g.ResetTransform();
+                        }
+                    }
+                }
+            }
+
+            return bmp;
+        }
+
         #endregion
 
         static void DrawHourLabels(Graphics g, Font font, Brush brush, int marginLeft, int marginTop, int totalCellSize)
@@ -210,7 +309,7 @@ namespace RmobDatVisualizer.Service
             g.DrawLine(Pens.Black, marginLeft, chartMarginTop + chartHeight - 25, marginLeft + chartWidth, chartMarginTop + chartHeight - 25); // X-axis
 
             if (hasLegend)
-            {                
+            {
                 g.DrawLine(Pens.Black, marginLeft, chartMarginTop, marginLeft, chartMarginTop + chartHeight - 25); // Y-axis
                 g.DrawString("0", font, brush, marginLeft - 30, chartMarginTop + chartHeight - 32);
                 g.DrawString(maxDaySum.ToString(), font, brush, marginLeft - 50, chartMarginTop + 10);

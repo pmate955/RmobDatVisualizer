@@ -99,6 +99,48 @@ namespace RmobDatVisualizer.GUI
             }
         }
 
+        private DateTime _meteorShowerStartDt = DateTime.Now.Date;
+        public DateTime MeteorShowerStartDt
+        {
+            get => _meteorShowerStartDt;
+            set
+            {
+                if (_meteorShowerStartDt != value)
+                {
+                    _meteorShowerStartDt = value;
+                    OnPropertyChanged(nameof(MeteorShowerStartDt));
+                }
+            }
+        }
+
+        private DateTime _meteorShowerEndDt = DateTime.Now.Date;
+        public DateTime MeteorShowerEndDt
+        {
+            get => _meteorShowerEndDt;
+            set
+            {
+                if (_meteorShowerEndDt != value)
+                {
+                    _meteorShowerEndDt = value;
+                    OnPropertyChanged(nameof(MeteorShowerEndDt));
+                }
+            }
+        }
+
+        private bool _meteorShowerShowGrid = true;
+        public bool MeteorShowerShowGrid
+        {
+            get => _meteorShowerShowGrid;
+            set
+            {
+                if (_meteorShowerShowGrid != value)
+                {
+                    _meteorShowerShowGrid = value;
+                    OnPropertyChanged(nameof(MeteorShowerShowGrid));
+                }
+            }
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged(string propertyName) =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

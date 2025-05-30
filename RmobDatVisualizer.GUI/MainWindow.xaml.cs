@@ -86,7 +86,7 @@ namespace RmobDatVisualizer.GUI
 
                     for (int i = 0; i < paths.Count; i++)
                     {
-                        var gen = VisualizationHelper.GenerateImage(csvData[i], maxCount, colors, i % countByRow == 0, (i % countByRow == countByRow - 1 && i > 0) || i == paths.Count - 1, hasBarChart);
+                        var gen = VisualizationHelper.GenerateRmobImage(csvData[i], maxCount, colors, i % countByRow == 0, (i % countByRow == countByRow - 1 && i > 0) || i == paths.Count - 1, hasBarChart);
                         graphList.Add(gen);
                     }
 
@@ -99,7 +99,29 @@ namespace RmobDatVisualizer.GUI
                 }
                 else
                 {
-                    MessageBox.Show(this, "Not supported yet!");
+                    var startDt = this.ViewModel.MeteorShowerStartDt;
+                    var endDt = this.ViewModel.MeteorShowerEndDt.AddDays(1);
+                    var showGrid = this.ViewModel.MeteorShowerShowGrid;
+
+                    if (startDt >= endDt)
+                        throw new Exception("StartDt has to be earlier than endDt!");
+
+                    var filtered = csvData
+                        .SelectMany(list => list) 
+                        .Where(item => item.EventDt >= startDt && item.EventDt <= endDt)
+                        .OrderBy(item => item.EventDt)
+                        .ToList();
+
+                    if (filtered.Count == 0)
+                        throw new Exception("No data in the given period. Please select an another RMOB.dat file, or modify the period!");
+
+                    var img = VisualizationHelper.GenerateHistogram(filtered, startDt, endDt, 1300, 900, showGrid);
+
+                    BitmapViewerWindow w = new(img, paths)
+                    {
+                        Owner = this
+                    };
+                    w.Show();
                 }
             }
             catch (Exception ex)

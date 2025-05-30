@@ -5,7 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
         xmlns:local="clr-namespace:RmobDatVisualizer.GUI"
-        Title="RmobDatVisualizer" Height="300" Width="420">
+        Title="RmobDatVisualizer" Height="300" Width="600"
+        ResizeMode="NoResize">
     <Window.DataContext>
         <local:MainViewModel />
     </Window.DataContext>
@@ -16,19 +17,19 @@
     </Window.Resources>
     <Grid Margin="10,10">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"></ColumnDefinition>
-            <ColumnDefinition Width="200"></ColumnDefinition>
-            <ColumnDefinition Width="*"></ColumnDefinition>
+            <ColumnDefinition Width="Auto"></ColumnDefinition>
+            <ColumnDefinition Width="Auto"></ColumnDefinition>
+            <ColumnDefinition Width="Auto"></ColumnDefinition>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition></RowDefinition>
-            <RowDefinition></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
         </Grid.RowDefinitions>
 
-        <Button Grid.Row="0" Grid.Column="0" x:Name="OpenBtn" Content="Open" HorizontalAlignment="Center"  VerticalAlignment="Top" Width="80" Height="35" Click="OnOpenBtnClick"/>
-        <Button Grid.Row="0" Grid.Column="2" x:Name="GeneraterBtn" Content="Generate" HorizontalAlignment="Center" VerticalAlignment="Top" Height="35" Width="80" Click="GeneraterBtn_Click"/>
+        <Button Grid.Row="0" Grid.Column="0" x:Name="OpenBtn" Content="Open" HorizontalAlignment="Center"  VerticalAlignment="Center" Width="80" Height="35" Click="OnOpenBtnClick"/>
+        <Button Grid.Row="0" Grid.Column="2" x:Name="GeneraterBtn" Content="Generate" HorizontalAlignment="Center" VerticalAlignment="Center" Height="35" Width="80" Click="GeneraterBtn_Click"/>
 
-        <GroupBox Padding="10" Grid.Row="0" Grid.Column="1" Header="Type" HorizontalAlignment="Center" VerticalAlignment="Top">
+        <GroupBox Padding="10" Grid.Row="0" Grid.Column="1" Header="Type" HorizontalAlignment="Center" VerticalAlignment="Center">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="20"/>
@@ -40,7 +41,7 @@
             </Grid>
         </GroupBox>
 
-        <GroupBox Padding="10" Grid.ColumnSpan="2" Header="RMOB Visualization" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,107,0,0" Grid.RowSpan="2" Width="Auto">
+        <GroupBox Grid.Row="1" Padding="10" Margin="10" Grid.ColumnSpan="2" Header="RMOB Visualization" HorizontalAlignment="Left" VerticalAlignment="Top" Width="Auto">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -80,7 +81,38 @@
             </Grid>
         </GroupBox>
 
-        <Label  Grid.Row="1" Grid.Column="2" Content="{Binding StatusText}" x:Name="StatusLbl" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+        <Label  Grid.Row="0" Grid.Column="2" Content="{Binding StatusText}" x:Name="StatusLbl" HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
 
+        <GroupBox Grid.Row="1" Grid.Column="2" Header="Meteor shower" Padding="10" Margin="10" VerticalAlignment="Center">
+            <Grid Grid.Row="1" Margin="0,10,0,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="200"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Start Date -->
+                <TextBlock Text="Start date:" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,10,5"/>
+                <DatePicker Grid.Row="0" Grid.Column="1"  Width="120" HorizontalAlignment="Left"
+                    SelectedDate="{Binding MeteorShowerStartDt, Mode=TwoWay}" Margin="0,0,0,5"
+                    IsEnabled="{Binding Path=SelectedType, Converter={StaticResource MeteorConverter}}" />
+
+                <!-- End Date -->
+                <TextBlock Text="End date:" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,10,0"/>
+                <DatePicker Grid.Row="1" Grid.Column="1" Width="120" HorizontalAlignment="Left"
+                    SelectedDate="{Binding MeteorShowerEndDt, Mode=TwoWay}" 
+                    IsEnabled="{Binding Path=SelectedType, Converter={StaticResource MeteorConverter}}"/>
+
+                <TextBlock Grid.Row="2" Grid.Column="0" Text="Show grid:" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,10,5" />
+                <CheckBox Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" Margin="0,0,0,5"
+                          IsChecked="{Binding MeteorShowerShowGrid}" 
+                          IsEnabled="{Binding Path=SelectedType, Converter={StaticResource MeteorConverter}}"></CheckBox>
+
+            </Grid>
+        </GroupBox>
     </Grid>
 </Window>
