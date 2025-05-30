@@ -65,8 +65,6 @@ namespace RmobDatVisualizer.GUI
         {
             try
             {
-                int countByRow = this.ViewModel.RmobMonthsPerRow;
-                Color[] colors = this.ViewModel.GetRmobSelectedColors();
 
                 var paths = this._selectedPaths
                         .OrderBy(fileName => fileName)
@@ -82,15 +80,21 @@ namespace RmobDatVisualizer.GUI
 
                 if (ViewModel.SelectedType == MainViewModel.VisualizationType.Rmob)
                 {
+                    int countByRow = this.ViewModel.RmobMonthsPerRow;
+                    Color[] colors = this.ViewModel.GetRmobSelectedColors();
+                    bool hasBarChart = this.ViewModel.RmobShowBarChart;
 
                     for (int i = 0; i < paths.Count; i++)
                     {
-                        var gen = VisualizationHelper.GenerateImage(csvData[i], maxCount, colors, i % countByRow == 0, (i % countByRow == countByRow - 1 && i > 0) || i == paths.Count - 1);
+                        var gen = VisualizationHelper.GenerateImage(csvData[i], maxCount, colors, i % countByRow == 0, (i % countByRow == countByRow - 1 && i > 0) || i == paths.Count - 1, hasBarChart);
                         graphList.Add(gen);
                     }
 
                     var img = VisualizationHelper.MergeImages(graphList, countByRow);
-                    BitmapViewerWindow w = new(img, paths);
+                    BitmapViewerWindow w = new(img, paths)
+                    {
+                        Owner = this
+                    };
                     w.Show();
                 }
                 else

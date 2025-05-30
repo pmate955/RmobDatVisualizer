@@ -52,8 +52,8 @@ namespace RmobDatVisualizer.GUI.Windows
         // Display the Bitmap in the WPF window
         private void DisplayBitmap(Bitmap bitmap)
         {
-            this.Width = (bitmap.Width / 2) + 100;  // Add some padding
-            this.Height = bitmap.Height / 2; // Add some padding
+            this.Width = (bitmap.Width / 1.5) + 100;  // Add some padding
+            this.Height = bitmap.Height / 1.5; // Add some padding
             BitmapSource bitmapSource = ConvertBitmapToBitmapSource(bitmap);
             ImageControl.Source = bitmapSource;
         }

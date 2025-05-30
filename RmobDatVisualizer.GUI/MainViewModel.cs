@@ -85,6 +85,20 @@ namespace RmobDatVisualizer.GUI
 
         }
 
+        private bool _rmobShowBarChart = true;
+        public bool RmobShowBarChart
+        {
+            get => _rmobShowBarChart;
+            set
+            {
+                if (_rmobShowBarChart != value)
+                {
+                    _rmobShowBarChart = value;
+                    OnPropertyChanged(nameof(RmobShowBarChart));
+                }
+            }
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged(string propertyName) =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

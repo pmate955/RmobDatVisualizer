@@ -12,7 +12,7 @@ namespace RmobDatVisualizer.Service
     {
         #region Public methods
 
-        public static Bitmap GenerateImage(List<AggregatedData> data, int maxCount, Color[] colors, bool hasLegend = true, bool hasScale = true)
+        public static Bitmap GenerateImage(List<AggregatedData> data, int maxCount, Color[] colors, bool hasLegend = true, bool hasScale = true, bool hasBarChart = true)
         {
             DateTime firstDate = data.First().EventDt;
             int daysInMonth = DateTime.DaysInMonth(firstDate.Year, firstDate.Month);
@@ -27,7 +27,7 @@ namespace RmobDatVisualizer.Service
             int marginTop = 100;
             int marginRight = hasScale ? 100 : 5; // Right margin for scale
 
-            Bitmap bitmap = new Bitmap(width + marginLeft + marginRight, height + marginTop + 400);
+            Bitmap bitmap = new Bitmap(width + marginLeft + marginRight, height + marginTop + (hasBarChart ? 400 : 50));
 
             using (Graphics g = Graphics.FromImage(bitmap))
             {
@@ -61,7 +61,8 @@ namespace RmobDatVisualizer.Service
                         if (hasScale)
                             DrawScale(g, font, brush, marginLeft, marginTop, width, height, cellSize, totalCellSize, maxCount, cellPadding, colors);
 
-                        DrawBarChart(g, data, brush, marginLeft, cellSize, height + marginTop + 450, maxCount, hasLegend);
+                        if (hasBarChart)
+                            DrawBarChart(g, data, brush, marginLeft, cellSize, height + marginTop + 450, maxCount, hasLegend);
 
                     }
                 }
