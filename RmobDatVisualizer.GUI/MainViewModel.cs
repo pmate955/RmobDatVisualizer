@@ -108,6 +108,7 @@ namespace RmobDatVisualizer.GUI
                 if (_meteorShowerStartDt != value)
                 {
                     _meteorShowerStartDt = value;
+                    this.MeteorShowerEndDt = _meteorShowerStartDt.AddDays(7);
                     OnPropertyChanged(nameof(MeteorShowerStartDt));
                 }
             }
