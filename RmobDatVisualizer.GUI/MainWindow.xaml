@@ -6,7 +6,6 @@
         mc:Ignorable="d"
         xmlns:local="clr-namespace:RmobDatVisualizer.GUI"
         Title="RmobDatVisualizer" Height="300" Width="550"
-        Topmost="True"
         ResizeMode="NoResize">
     <Window.DataContext>
         <local:MainViewModel />

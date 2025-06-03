@@ -30,7 +30,9 @@ namespace RmobDatVisualizer.GUI.Windows
             this.Title = string.Join(", ", pathList.Select(x => Path.GetFileName(x)));
             this.DisplayBitmap(input);
         }
-        // Convert System.Drawing.Bitmap to BitmapSource
+
+        private BitmapImage bitmapImage;
+
         private BitmapSource ConvertBitmapToBitmapSource(Bitmap bitmap)
         {
             using (MemoryStream memoryStream = new MemoryStream())
@@ -43,7 +45,9 @@ namespace RmobDatVisualizer.GUI.Windows
                 bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
                 bitmapImage.StreamSource = memoryStream;
                 bitmapImage.EndInit();
-                bitmapImage.Freeze(); // Important if used across threads
+                bitmapImage.Freeze();
+
+                this.bitmapImage = bitmapImage;
 
                 return bitmapImage;
             }
@@ -78,7 +82,6 @@ namespace RmobDatVisualizer.GUI.Windows
             }
         }
 
-        // Save the BitmapSource to a file
         private void SaveBitmapToFile(BitmapSource bitmapSource, string filePath)
         {
             PngBitmapEncoder encoder = new PngBitmapEncoder();
@@ -88,6 +91,11 @@ namespace RmobDatVisualizer.GUI.Windows
             {
                 encoder.Save(fileStream);
             }
+        }
+
+        private void CopyToClipboardBtn_Click(object sender, RoutedEventArgs e)
+        {
+            Clipboard.SetImage(this.bitmapImage);
         }
     }
 }
