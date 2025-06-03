@@ -113,6 +113,9 @@ namespace RmobDatVisualizer.GUI
                     if (startDt >= endDt)
                         throw new Exception("StartDt has to be earlier than endDt!");
 
+                    if ((endDt - startDt).Days > 11)
+                        throw new Exception("Date difference should be less than 11!");
+
                     var filtered = csvData
                         .SelectMany(list => list) 
                         .Where(item => item.EventDt >= startDt && item.EventDt <= endDt)
@@ -130,11 +133,13 @@ namespace RmobDatVisualizer.GUI
                     };
                     w.Show();
                 }
+
+                this.ViewModel.StatusText = "Image created!";
             }
             catch (Exception ex)
             {
-                this.ViewModel.StatusText = "Exception!";
-                MessageBox.Show(this, ex.Message, "Exception", MessageBoxButton.OK, MessageBoxImage.Error);
+                this.ViewModel.StatusText = "Ooops!";
+                MessageBox.Show(this, ex.Message, "Ooops!", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }       
     }

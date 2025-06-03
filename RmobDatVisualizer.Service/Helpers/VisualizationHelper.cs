@@ -149,7 +149,7 @@ namespace RmobDatVisualizer.Service
                 int maxCount = countsPerHour.Max();
                 if (maxCount == 0) maxCount = 1;
 
-                float barSpacing = 2;
+                float barSpacing = 1;
                 float barWidth = (float)plotWidth / countsPerHour.Count - barSpacing;
 
                 // Draw bars
