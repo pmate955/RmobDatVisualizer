@@ -40,7 +40,7 @@ namespace RmobDatVisualizer.GUI
             }
         }
 
-        private RmobScale _selectedRmobScale = RmobScale.Original;
+        private RmobScale _selectedRmobScale = RmobScale.BlueToRed;
         public RmobScale SelectedRmobScale
         {
             get => _selectedRmobScale;

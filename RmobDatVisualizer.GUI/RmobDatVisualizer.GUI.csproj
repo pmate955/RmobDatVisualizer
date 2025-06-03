@@ -5,7 +5,12 @@
     <TargetFramework>net6.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
+	<ApplicationIcon>Resources\rmob_icon3.ico</ApplicationIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Resources\rmob_icon3.ico" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="System.Drawing.Common" Version="8.0.7" />
@@ -13,6 +18,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\RmobDatVisualizer.Service\RmobDatVisualizer.Service.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\rmob_icon3.ico" />
   </ItemGroup>
 
 </Project>
