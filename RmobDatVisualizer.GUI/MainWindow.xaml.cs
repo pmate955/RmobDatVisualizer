@@ -33,6 +33,12 @@ namespace RmobDatVisualizer.GUI
             InitializeComponent();
             this._selectedPaths = new List<string>();
             DataContext = ViewModel;
+            Loaded += MainWindow_Loaded;
+        }
+
+        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            this.ViewModel.StatusText = "Please open RMOB files!";
         }
 
         /// <summary>
@@ -53,11 +59,12 @@ namespace RmobDatVisualizer.GUI
             if (result == true)
             {
                 this._selectedPaths = openFileDialog.FileNames.ToList();
-                this.ViewModel.StatusText = "Files selected";
+                this.ViewModel.StatusText = "Files selected.";
             }
-            else
+            
+            if (this._selectedPaths.Count() == 0)
             {
-                this.ViewModel.StatusText = "No file selected";
+                this.ViewModel.StatusText = "No file selected!";
             }
         }
 
@@ -73,7 +80,7 @@ namespace RmobDatVisualizer.GUI
                 if (paths.Count == 0)
                     throw new Exception("No input file selected. Please use the \"Open\" button!");
 
-                List<Bitmap> graphList = new List<Bitmap>();
+                List<Bitmap> graphList = new();
 
                 int maxCount;
                 List<List<AggregatedData>> csvData = CsvHelper.GetDataForImage(paths, out maxCount);

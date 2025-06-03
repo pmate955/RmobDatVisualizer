@@ -54,7 +54,7 @@ namespace RmobDatVisualizer.GUI
             }
         }
 
-        public Array AvailableScales => Enum.GetValues(typeof(RmobScale));
+        public static Array AvailableScales => Enum.GetValues(typeof(RmobScale));
 
         private string _statusText = "";
         public string StatusText
@@ -149,13 +149,13 @@ namespace RmobDatVisualizer.GUI
         {
             switch (this.SelectedRmobScale)
             {
-                case MainViewModel.RmobScale.Original:
+                case RmobScale.Original:
                     return Scales.RmobColors;
-                case MainViewModel.RmobScale.GrayScale:
+                case RmobScale.GrayScale:
                     return Scales.GrayscaleColors;
-                case MainViewModel.RmobScale.Contrasty:
+                case RmobScale.Contrasty:
                     return Scales.ContrastyColors;
-                case MainViewModel.RmobScale.BlueToRed:
+                case RmobScale.BlueToRed:
                     return Scales.BlueToRedScale;
                 default:
                     return Scales.RmobColors;
