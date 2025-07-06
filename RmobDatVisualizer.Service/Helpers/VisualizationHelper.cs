@@ -98,7 +98,7 @@ namespace RmobDatVisualizer.Service
             Bitmap mergedBitmap = new Bitmap(totalWidth, fixedHeight * rows);
             using (Graphics g = Graphics.FromImage(mergedBitmap))
             {
-                g.Clear(Color.Black);
+                g.Clear(Color.White);
                 int x = 0, y = 0, imgIndex = 0;
 
                 foreach (int rowWidth in rowWidths)
