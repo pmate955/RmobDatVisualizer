@@ -221,9 +221,9 @@ namespace RmobDatVisualizer.Service
             // Add hour labels
             g.DrawString("0h", font, brush, marginLeft - 40, marginTop);
             g.DrawString("6h", font, brush, marginLeft - 40, marginTop + 6 * totalCellSize);
-            g.DrawString("12h", font, brush, marginLeft - 40, marginTop + 12 * totalCellSize);
-            g.DrawString("18h", font, brush, marginLeft - 40, marginTop + 18 * totalCellSize);
-            g.DrawString("23h", font, brush, marginLeft - 40, marginTop + 23 * totalCellSize);
+            g.DrawString("12h", font, brush, marginLeft - 46, marginTop + 12 * totalCellSize);
+            g.DrawString("18h", font, brush, marginLeft - 46, marginTop + 18 * totalCellSize);
+            g.DrawString("23h", font, brush, marginLeft - 46, marginTop + 23 * totalCellSize);
         }
 
         static void DrawDayLabels(Graphics g, Font font, Brush brush, int marginLeft, int marginTop, int daysInMonth, int totalCellSize)
@@ -258,7 +258,7 @@ namespace RmobDatVisualizer.Service
                 g.FillRectangle(new SolidBrush(Scales.GetColorForValue(colors, i, 24)), scaleX, y, cellSize, cellSize);
             }
 
-            g.DrawString(maxCount.ToString(), font, brush, scaleX + cellSize, scaleYStart - 3);
+            g.DrawString(maxCount.ToString(), font, brush, scaleX + cellSize + 5, scaleYStart - 3);
             g.DrawString((maxCount / 2).ToString(), font, brush, scaleX + cellSize + 5, scaleYStart + (height / 2 - totalCellSize / 2) - 15);
             g.DrawString("0", font, brush, scaleX + cellSize + 5, scaleYEnd - totalCellSize);
         }
