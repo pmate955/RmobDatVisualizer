@@ -125,7 +125,7 @@ namespace RmobDatVisualizer.GUI
                     if (filtered.Count == 0)
                         throw new Exception("No data in the given period. Please select an another RMOB.dat file, or modify the period!");
 
-                    var img = VisualizationHelper.GenerateHistogram(filtered, startDt, endDt, 1300, 900, showGrid);
+                    var img = VisualizationHelper.GenerateHistogram(filtered, startDt, endDt, 1300, 1000, showGrid);
 
                     BitmapViewerWindow w = new(img, paths)
                     {

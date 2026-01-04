@@ -24,7 +24,7 @@ namespace RmobDatVisualizer.Service
             int width = daysInMonth * totalCellSize;
             int height = 24 * totalCellSize;
 
-            int marginLeft = hasLegend ? 50 : 5;  // Left margin for labels and bar chart
+            int marginLeft = hasLegend ? 60 : 5;  // Left margin for labels and bar chart
             int marginTop = 100;
             int marginRight = hasScale ? 100 : 5; // Right margin for scale
 
@@ -55,9 +55,9 @@ namespace RmobDatVisualizer.Service
                         g.DrawString(title, font, brush, width / 2.0f, 20);
 
                         if (hasLegend)
-                            DrawHourLabels(g, font, brush, marginLeft, marginTop, totalCellSize);
+                            DrawHourLabels(g, font, brush, marginLeft, marginTop - 4, totalCellSize);
 
-                        DrawDayLabels(g, font, brush, marginLeft, marginTop - 30, daysInMonth, totalCellSize);
+                        DrawDayLabels(g, font, brush, marginLeft, marginTop - 32, daysInMonth, totalCellSize);
 
                         if (hasScale)
                             DrawScale(g, font, brush, marginLeft, marginTop, width, height, cellSize, totalCellSize, maxCount, cellPadding, colors);
@@ -132,10 +132,10 @@ namespace RmobDatVisualizer.Service
                 return item.EventDt == DateTime.MinValue ? 0 : item.Count;
             }).ToList();
 
-            int marginLeft = 60;
-            int marginBottom = 90;
+            int marginLeft = 70;
+            int marginBottom = 130;
             int marginTop = 20;
-            int marginRight = 60;
+            int marginRight = 70;
 
             int plotWidth = imageWidth - marginLeft - marginRight;
             int plotHeight = imageHeight - marginTop - marginBottom;
@@ -186,7 +186,7 @@ namespace RmobDatVisualizer.Service
                         else
                             g.DrawLine(Pens.Gray, marginLeft - 5, y, marginLeft, y);
 
-                        g.DrawString(val.ToString(), font, textBrush, 2, y - 6);
+                        g.DrawString(val.ToString(), font, textBrush, 0, y - 12);
                     }
 
                     // X-axis labels (sparse for readability)
@@ -198,7 +198,7 @@ namespace RmobDatVisualizer.Service
 
                             // Draw vertical grid line
                             if (showGrid)
-                                g.DrawLine(Pens.Gray, x, marginTop, x, marginTop + plotHeight);
+                                g.DrawLine(Pens.Gray, x, marginTop, x, marginTop + plotHeight + 6);
 
                             // Draw angled label
                             string label = hours[i].ToString("MM-dd HH");
@@ -219,11 +219,11 @@ namespace RmobDatVisualizer.Service
         static void DrawHourLabels(Graphics g, Font font, Brush brush, int marginLeft, int marginTop, int totalCellSize)
         {
             // Add hour labels
-            g.DrawString("0h", font, brush, marginLeft - 40, marginTop);
-            g.DrawString("6h", font, brush, marginLeft - 40, marginTop + 6 * totalCellSize);
-            g.DrawString("12h", font, brush, marginLeft - 46, marginTop + 12 * totalCellSize);
-            g.DrawString("18h", font, brush, marginLeft - 46, marginTop + 18 * totalCellSize);
-            g.DrawString("23h", font, brush, marginLeft - 46, marginTop + 23 * totalCellSize);
+            g.DrawString("0h", font, brush, marginLeft - 45, marginTop);
+            g.DrawString("6h", font, brush, marginLeft - 45, marginTop + 6 * totalCellSize);
+            g.DrawString("12h", font, brush, marginLeft - 55, marginTop + 12 * totalCellSize);
+            g.DrawString("18h", font, brush, marginLeft - 55, marginTop + 18 * totalCellSize);
+            g.DrawString("23h", font, brush, marginLeft - 55, marginTop + 23 * totalCellSize);
         }
 
         static void DrawDayLabels(Graphics g, Font font, Brush brush, int marginLeft, int marginTop, int daysInMonth, int totalCellSize)
