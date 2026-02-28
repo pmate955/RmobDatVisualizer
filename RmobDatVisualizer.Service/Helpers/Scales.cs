@@ -9,7 +9,7 @@ namespace RmobDatVisualizer.Service
 {
     public class Scales
     {
-        public static Color[] RmobColors = new Color[]
+        public static Color[] RmobColors = new Color[24]
         {
             Color.FromArgb(0, 67, 255),
             Color.FromArgb(0, 80, 255),
@@ -130,7 +130,7 @@ namespace RmobDatVisualizer.Service
 
         public static Color GetColorForValue(Color[] colors, int value, int max)
         {
-            decimal percent = value / (decimal)max;
+            decimal percent = value / (decimal)(max - 1);
             int position = (int)Math.Floor(percent * (colors.Count() - 1));
             return colors[position];
         }
