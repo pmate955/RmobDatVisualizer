@@ -16,6 +16,8 @@ jobs:
     env:
       Solution_Name: RmobDatVisualizer.sln
       Wpf_Project_Path: RmobDatVisualizer.GUI\RmobDatVisualizer.GUI.csproj
+      Console_Project_Path: RmobDatVisualizer\RmobDatVisualizer.Console.csproj
+      Service_Project_Path: RmobDatVisualizer.Service\RmobDatVisualizer.Service.csproj
       Wap_Project_Directory: RmobDatVisualizer.GUI
 
     steps:
@@ -23,6 +25,50 @@ jobs:
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
+
+    - name: Extract version from tag
+      id: version
+      run: |
+        $tag = "${{ github.ref_name }}"
+        $version = $tag -replace '^v', ''
+        echo "version=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+        Write-Output "Extracted version: $version"
+
+    - name: Update version in GUI project
+      run: |
+        $filePath = "${{ env.Wpf_Project_Path }}"
+        $version = "${{ steps.version.outputs.version }}"
+        
+        $content = Get-Content -Path $filePath -Raw
+        $content = $content -replace '<Version>.*?</Version>', "<Version>$version</Version>"
+        $content = $content -replace '<InformationalVersion>.*?</InformationalVersion>', "<InformationalVersion>$version</InformationalVersion>"
+        
+        Set-Content -Path $filePath -Value $content
+        Write-Output "Updated $filePath with version $version"
+
+    - name: Update version in Console project
+      run: |
+        $filePath = "${{ env.Console_Project_Path }}"
+        $version = "${{ steps.version.outputs.version }}"
+        
+        $content = Get-Content -Path $filePath -Raw
+        $content = $content -replace '<Version>.*?</Version>', "<Version>$version</Version>"
+        $content = $content -replace '<InformationalVersion>.*?</InformationalVersion>', "<InformationalVersion>$version</InformationalVersion>"
+        
+        Set-Content -Path $filePath -Value $content
+        Write-Output "Updated $filePath with version $version"
+
+    - name: Update version in Service project
+      run: |
+        $filePath = "${{ env.Service_Project_Path }}"
+        $version = "${{ steps.version.outputs.version }}"
+        
+        $content = Get-Content -Path $filePath -Raw
+        $content = $content -replace '<Version>.*?</Version>', "<Version>$version</Version>"
+        $content = $content -replace '<InformationalVersion>.*?</InformationalVersion>', "<InformationalVersion>$version</InformationalVersion>"
+        
+        Set-Content -Path $filePath -Value $content
+        Write-Output "Updated $filePath with version $version"
 
     - name: Setup .NET
       uses: actions/setup-dotnet@v4

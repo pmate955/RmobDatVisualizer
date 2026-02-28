@@ -1,4 +1,5 @@
 using Microsoft.Win32;
+using RmobDatVisualizer.GUI.Helpers;
 using RmobDatVisualizer.GUI.Windows;
 using RmobDatVisualizer.Service;
 using System;
@@ -38,6 +39,7 @@ namespace RmobDatVisualizer.GUI
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
+            this.Title = VersionHelper.GetApplicationTitle();
             this.ViewModel.StatusText = "Please open RMOB files!";
         }
 

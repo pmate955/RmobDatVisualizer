@@ -6,6 +6,8 @@
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
 	<ApplicationIcon>Resources\rmob_icon3.ico</ApplicationIcon>
+    <Version>1.1.0</Version>
+    <InformationalVersion>1.1.0</InformationalVersion>
   </PropertyGroup>
 
   <ItemGroup>
