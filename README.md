@@ -2,7 +2,10 @@
 
 ## Introduction
 
-This is a small project for visualizing SpectrumLab-type `RMOB-YYYYMM.dat` files.  
+This is a small project for visualizing radio meteor detection data from two file formats:
+- **SpectrumLab-type** `RMOB-YYYYMM.dat` files
+- **RmobTxt format** `*MMYYYY rmob.txt` files (radio meteor detector output)
+
 **Note:** This project is still in progress!
 
 ### Example `RMOB-202408.dat` file:
@@ -13,11 +16,27 @@ This is a small project for visualizing SpectrumLab-type `RMOB-YYYYMM.dat` files
 2024080102 , 02 , 80
 ```
 
-The file uses commas (`,`) as delimiters:  
+The CSV format uses commas (`,`) as delimiters:  
 - The **first column** contains the date and hour in the format `YYYYMMDDHH` (UTC).  
 - The **second column** shows the hour.  
 - The **third column** contains the meteor count for the given hour.  
 Line endings must be **CRLF** (`\r\n`).
+
+### Example `Szeged_022024rmob.txt` file:
+
+```
+feb| 00h| 01h| 02h| 03h| 04h| 05h| 06h| 07h| 08h| 09h| 10h| 11h| 12h| 13h| 14h| 15h| 16h| 17h| 18h| 19h| 20h| 21h| 22h| 23h|
+ 01| 145| 133| 142| 119|  83|  89|  99|  97|  76|  66|  73|  91|  67|  70|  52|  67|  49|  48|  72|  89| 112|  95| 117| 158|
+ 02| 147| 146| 133| 106|  86|  78|  66|  87| ???| ???| ???| ???| ???| ???| ???| ???|   9|   9|  12|  37|  40|  57|  74|   0|
+```
+
+The RmobTxt format is a pipe-delimited table:
+- **First column** contains the day of the month (01-31).
+- **First row** contains hour labels (00h-23h).
+- **Data cells** contain meteor counts for each day and hour.
+- **Missing data** is marked as `???` and is automatically skipped.
+- **Filename format**: `[Location_]MMYYYY rmob.txt` (e.g., `Szeged_022024rmob.txt` for February 2024)
+  - Month and year are extracted from the filename to set the correct date for the data.
 
 ## Prerequisities
 - Microsoft Windows (tested on 10)

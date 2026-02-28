@@ -1,4 +1,4 @@
-﻿using Microsoft.Win32;
+using Microsoft.Win32;
 using RmobDatVisualizer.GUI.Windows;
 using RmobDatVisualizer.Service;
 using System;
@@ -50,7 +50,7 @@ namespace RmobDatVisualizer.GUI
         {
             OpenFileDialog openFileDialog = new OpenFileDialog
             {
-                Filter = "RMOB .dat files (RMOB-*.dat)|RMOB-*.dat",
+                Filter = "RMOB files (RMOB-*.dat;*rmob.txt)|RMOB-*.dat;*rmob.txt",
                 Multiselect = true
             };
 
@@ -83,7 +83,7 @@ namespace RmobDatVisualizer.GUI
                 List<Bitmap> graphList = new();
 
                 int maxCount;
-                List<List<AggregatedData>> csvData = CsvHelper.GetDataForImage(paths, out maxCount);
+                List<List<AggregatedData>> csvData = GetDataFromFiles(paths, out maxCount);
 
                 if (ViewModel.SelectedType == MainViewModel.VisualizationType.Rmob)
                 {
@@ -141,6 +141,45 @@ namespace RmobDatVisualizer.GUI
                 this.ViewModel.StatusText = "Ooops!";
                 MessageBox.Show(this, ex.Message, "Ooops!", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-        }       
+        }
+
+        /// <summary>
+        /// Loads and aggregates data from multiple files, supporting both CSV (.dat) and RmobTxt (.txt) formats.
+        /// </summary>
+        /// <param name="paths">List of file paths to load data from.</param>
+        /// <param name="maxCount">Output parameter containing the maximum count value across all loaded data.</param>
+        /// <returns>List of aggregated data lists, one per input file.</returns>
+        /// <exception cref="Exception">Thrown when no valid data files are found.</exception>
+        private List<List<AggregatedData>> GetDataFromFiles(List<string> paths, out int maxCount)
+        {
+            // Separate files by type
+            var csvFiles = paths.Where(p => p.EndsWith(".dat", StringComparison.OrdinalIgnoreCase)).ToList();
+            var rmobTxtFiles = paths.Where(p => p.EndsWith(".txt", StringComparison.OrdinalIgnoreCase)).ToList();
+
+            var allData = new List<List<AggregatedData>>();
+            maxCount = 0;
+
+            // Load CSV files
+            if (csvFiles.Count > 0)
+            {
+                var csvData = CsvHelper.GetDataForImage(csvFiles, out int csvMaxCount);
+                allData.AddRange(csvData);
+                maxCount = Math.Max(maxCount, csvMaxCount);
+            }
+
+            // Load RmobTxt files
+            if (rmobTxtFiles.Count > 0)
+            {
+                var rmobTxtData = RmobTxtHelper.GetDataForImage(rmobTxtFiles, out int rmobTxtMaxCount);
+                allData.AddRange(rmobTxtData);
+                maxCount = Math.Max(maxCount, rmobTxtMaxCount);
+            }
+
+            if (allData.Count == 0)
+                throw new Exception("No valid data files found!");
+
+            return allData;
+        }
     }
 }
+
