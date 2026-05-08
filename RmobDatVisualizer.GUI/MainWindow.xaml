@@ -51,6 +51,7 @@ ResizeMode="NoResize">
                     <RowDefinition Height="30"></RowDefinition>
                     <RowDefinition Height="30"></RowDefinition>
                     <RowDefinition Height="30"></RowDefinition>
+                    <RowDefinition Height="30"></RowDefinition>
                 </Grid.RowDefinitions>
 
                 <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,10,0">Months per row:</TextBlock>
@@ -80,6 +81,11 @@ ResizeMode="NoResize">
                 <CheckBox Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" 
                           IsChecked="{Binding RmobShowBarChart}" 
                           IsEnabled="{Binding Path=SelectedType, Converter={StaticResource RmobConverter}}"/>
+
+                <TextBlock Grid.Row="3" Grid.Column="0" Text="Dynamic range:" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,10,0" />
+                <CheckBox Grid.Row="3" Grid.Column="1" VerticalAlignment="Center" 
+                       IsChecked="{Binding RmobDynamicScale}" 
+                       IsEnabled="{Binding Path=SelectedType, Converter={StaticResource RmobConverter}}"/>
             </Grid>
         </GroupBox>
 

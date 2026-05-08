@@ -10,10 +10,11 @@ namespace RmobDatVisualizer.Service
 {
     public class CsvHelper
     {
-        public static List<AggregatedData> ReadCsv(string path, out int max)
+        public static List<AggregatedData> ReadCsv(string path, out int min, out int max)
         {
             var data = new List<AggregatedData>();
             var maxCount = 0;
+            var minCount = int.MaxValue;
 
             foreach (var line in File.ReadLines(path))
             {
@@ -28,22 +29,27 @@ namespace RmobDatVisualizer.Service
 
                     if (count > maxCount)
                         maxCount = count;
+
+                    if (count < minCount)
+                        minCount = count;
                 }
             }
 
             max = maxCount;
+            min = minCount;
 
             return data;
         }
 
-        public static List<List<AggregatedData>> GetDataForImage(List<string> paths, out int maxCount)
+        public static List<List<AggregatedData>> GetDataForImage(List<string> paths, out int minCount, out int maxCount)
         {
             var csvData = new List<List<AggregatedData>>();
             maxCount = 0;
+            minCount = int.MaxValue;
 
             for (int i = 0; i < paths.Count; i++)
             {
-                var data = ReadCsv(paths[i], out int localMax);
+                var data = ReadCsv(paths[i], out int localMin, out int localMax);
 
                 if (data == null || data.Count == 0)
                 {
@@ -52,6 +58,9 @@ namespace RmobDatVisualizer.Service
 
                 if (localMax > maxCount)
                     maxCount = localMax;
+
+                if (localMin < minCount)
+                    minCount = localMin;
 
                 csvData.Add(data);
             }

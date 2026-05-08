@@ -85,17 +85,18 @@ namespace RmobDatVisualizer.GUI
                 List<Bitmap> graphList = new();
 
                 int maxCount;
-                List<List<AggregatedData>> csvData = GetDataFromFiles(paths, out maxCount);
+                List<List<AggregatedData>> csvData = GetDataFromFiles(paths, out int minCount, out maxCount);
 
                 if (ViewModel.SelectedType == MainViewModel.VisualizationType.Rmob)
                 {
                     int countByRow = this.ViewModel.RmobMonthsPerRow;
                     Color[] colors = this.ViewModel.GetRmobSelectedColors();
                     bool hasBarChart = this.ViewModel.RmobShowBarChart;
+                    bool hasDynamicScale = this.ViewModel.RmobDynamicScale;
 
                     for (int i = 0; i < paths.Count; i++)
                     {
-                        var gen = VisualizationHelper.GenerateRmobImage(csvData[i], maxCount, colors, i % countByRow == 0, (i % countByRow == countByRow - 1 && i > 0) || i == paths.Count - 1, hasBarChart);
+                        var gen = VisualizationHelper.GenerateRmobImage(csvData[i], minCount, maxCount, colors, i % countByRow == 0, (i % countByRow == countByRow - 1 && i > 0) || i == paths.Count - 1, hasBarChart, hasDynamicScale);
                         graphList.Add(gen);
                     }
 
@@ -152,7 +153,7 @@ namespace RmobDatVisualizer.GUI
         /// <param name="maxCount">Output parameter containing the maximum count value across all loaded data.</param>
         /// <returns>List of aggregated data lists, one per input file.</returns>
         /// <exception cref="Exception">Thrown when no valid data files are found.</exception>
-        private List<List<AggregatedData>> GetDataFromFiles(List<string> paths, out int maxCount)
+        private List<List<AggregatedData>> GetDataFromFiles(List<string> paths, out int minCount, out int maxCount)
         {
             // Separate files by type
             var csvFiles = paths.Where(p => p.EndsWith(".dat", StringComparison.OrdinalIgnoreCase)).ToList();
@@ -160,21 +161,24 @@ namespace RmobDatVisualizer.GUI
 
             var allData = new List<List<AggregatedData>>();
             maxCount = 0;
+            minCount = 0;
 
             // Load CSV files
             if (csvFiles.Count > 0)
             {
-                var csvData = CsvHelper.GetDataForImage(csvFiles, out int csvMaxCount);
+                var csvData = CsvHelper.GetDataForImage(csvFiles, out int csvMinCount, out int csvMaxCount);
                 allData.AddRange(csvData);
                 maxCount = Math.Max(maxCount, csvMaxCount);
+                minCount = csvMinCount; // Assuming we want the minimum count from CSV files for scaling
             }
 
             // Load RmobTxt files
             if (rmobTxtFiles.Count > 0)
             {
-                var rmobTxtData = RmobTxtHelper.GetDataForImage(rmobTxtFiles, out int rmobTxtMaxCount);
+                var rmobTxtData = RmobTxtHelper.GetDataForImage(rmobTxtFiles, out int rmobTxtMinCount, out int rmobTxtMaxCount);
                 allData.AddRange(rmobTxtData);
                 maxCount = Math.Max(maxCount, rmobTxtMaxCount);
+                minCount = rmobTxtMinCount; // Assuming we want the minimum count from RmobTxt files for scaling
             }
 
             if (allData.Count == 0)

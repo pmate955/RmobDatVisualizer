@@ -99,6 +99,20 @@ namespace RmobDatVisualizer.GUI
             }
         }
 
+        private bool _rmobDynamicScale = true;
+        public bool RmobDynamicScale
+        {
+            get => _rmobDynamicScale;
+            set
+            {
+                if (_rmobDynamicScale != value)
+                {
+                    _rmobDynamicScale = value;
+                    OnPropertyChanged(nameof(RmobDynamicScale));
+                }
+            }
+        }
+
         private DateTime _meteorShowerStartDt = DateTime.Now.Date;
         public DateTime MeteorShowerStartDt
         {

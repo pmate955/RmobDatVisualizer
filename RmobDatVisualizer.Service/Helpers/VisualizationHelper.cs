@@ -13,7 +13,7 @@ namespace RmobDatVisualizer.Service
     {
         #region Public methods
 
-        public static Bitmap GenerateRmobImage(List<AggregatedData> data, int maxCount, Color[] colors, bool hasLegend = true, bool hasScale = true, bool hasBarChart = true)
+        public static Bitmap GenerateRmobImage(List<AggregatedData> data, int minCount, int maxCount, Color[] colors, bool hasLegend = true, bool hasScale = true, bool hasBarChart = true, bool hasDynamicScale = false)
         {
             DateTime firstDate = data.First().EventDt;
             int daysInMonth = DateTime.DaysInMonth(firstDate.Year, firstDate.Month);
@@ -42,7 +42,7 @@ namespace RmobDatVisualizer.Service
                 {
                     int x = marginLeft + (item.EventDt.Day - 1) * totalCellSize;
                     int y = marginTop + item.Hour * totalCellSize;
-                    Color color = Scales.GetColorForValue(colors, item.Count, maxCount);
+                    Color color = Scales.GetColorForValue(colors, item.Count, (hasDynamicScale ? minCount : 0), maxCount);
                     g.FillRectangle(new SolidBrush(color), x, y, cellSize, cellSize);
                 }
 
@@ -60,7 +60,7 @@ namespace RmobDatVisualizer.Service
                         DrawDayLabels(g, font, brush, marginLeft, marginTop - 32, daysInMonth, totalCellSize);
 
                         if (hasScale)
-                            DrawScale(g, font, brush, marginLeft, marginTop, width, height, cellSize, totalCellSize, maxCount, cellPadding, colors);
+                            DrawScale(g, font, brush, marginLeft, marginTop, width, height, cellSize, totalCellSize, (hasDynamicScale ? minCount : 0), maxCount, cellPadding, colors);
 
                         if (hasBarChart)
                             DrawBarChart(g, data, brush, marginLeft, cellSize, height + marginTop + 450, maxCount, hasLegend);
@@ -242,7 +242,7 @@ namespace RmobDatVisualizer.Service
             }
         }
 
-        static void DrawScale(Graphics g, Font font, Brush brush, int marginLeft, int marginTop, int width, int height, int cellSize, int totalCellSize, int maxCount, int cellPadding, Color[] colors)
+        static void DrawScale(Graphics g, Font font, Brush brush, int marginLeft, int marginTop, int width, int height, int cellSize, int totalCellSize, int minCount, int maxCount, int cellPadding, Color[] colors)
         {
             int scaleX = marginLeft + width + 20;
             int scaleYStart = marginTop;
@@ -251,16 +251,17 @@ namespace RmobDatVisualizer.Service
 
             g.FillRectangle(Brushes.Black, scaleX - cellPadding, marginTop - cellPadding, totalCellSize + cellPadding, 24 * totalCellSize + cellPadding);
             int i2 = 23;
+
             // Draw 24 values with scale
             for (int i = 0; i < 24; i++)
             {
                 int y = scaleYStart + i2-- * scaleStep;
-                g.FillRectangle(new SolidBrush(Scales.GetColorForValue(colors, i, 24)), scaleX, y, cellSize, cellSize);
+                g.FillRectangle(new SolidBrush(Scales.GetColorForValue(colors, i, 0, 24)), scaleX, y, cellSize, cellSize);
             }
 
             g.DrawString(maxCount.ToString(), font, brush, scaleX + cellSize + 5, scaleYStart - 3);
             g.DrawString((maxCount / 2).ToString(), font, brush, scaleX + cellSize + 5, scaleYStart + (height / 2 - totalCellSize / 2) - 15);
-            g.DrawString("0", font, brush, scaleX + cellSize + 5, scaleYEnd - totalCellSize);
+            g.DrawString(minCount.ToString(), font, brush, scaleX + cellSize + 5, scaleYEnd - totalCellSize);
         }
 
         static void DrawBarChart(Graphics g, List<AggregatedData> data, Brush brush, int marginLeft, int cellSize, int bitmapHeight, int maxDaySum, bool hasLegend)

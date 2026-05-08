@@ -58,12 +58,12 @@ internal class Program
         if (!File.Exists(path))
             throw new Exception("The specified file does not exist.");
             
-        var data = CsvHelper.ReadCsv(path, out int max);
+        var data = CsvHelper.ReadCsv(path, out int min, out int max);
         
         if (data == null || data.Count == 0)
             throw new Exception("No valid data found in the CSV file.");
 
-        return VisualizationHelper.GenerateRmobImage(data, max, Scales.RmobColors);
+        return VisualizationHelper.GenerateRmobImage(data, min, max, Scales.RmobColors);
     }
 
     static Bitmap ProcessDirectory(string path)
@@ -80,10 +80,11 @@ internal class Program
         List<Bitmap> graphList = new List<Bitmap>();
         List<List<AggregatedData>> csvData = new List<List<AggregatedData>>();
         int maxCount = 0;
+        int minCount = 0;
 
         for (int i = 0; i < paths.Count; i++)
         {
-            var data = CsvHelper.ReadCsv(paths[i], out int localMax);
+            var data = CsvHelper.ReadCsv(paths[i], out int min, out int localMax);
 
             if (data == null || data.Count == 0)
             {
@@ -93,12 +94,15 @@ internal class Program
             if (localMax > maxCount)
                 maxCount = localMax;
 
+            if (min < minCount)
+                minCount = min;
+
             csvData.Add(data);
         }
 
         for (int i = 0; i < paths.Count; i++)
         {
-            var gen = VisualizationHelper.GenerateRmobImage(csvData[i], maxCount, Scales.RmobColors, i % countByRow == 0, (i % countByRow == countByRow - 1 && i > 0) || i == paths.Count - 1);
+            var gen = VisualizationHelper.GenerateRmobImage(csvData[i], minCount, maxCount, Scales.RmobColors, i % countByRow == 0, (i % countByRow == countByRow - 1 && i > 0) || i == paths.Count - 1);
             graphList.Add(gen);
         }
 

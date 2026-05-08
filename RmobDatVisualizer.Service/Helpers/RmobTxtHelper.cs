@@ -83,10 +83,11 @@ namespace RmobDatVisualizer.Service
         /// <param name="maxCount">Output parameter containing the maximum count value across all files.</param>
         /// <returns>List of aggregated data lists, one per input file.</returns>
         /// <exception cref="Exception">Thrown when a file is invalid, contains no data, or when data cannot be parsed.</exception>
-        public static List<List<AggregatedData>> GetDataForImage(List<string> paths, out int maxCount)
+        public static List<List<AggregatedData>> GetDataForImage(List<string> paths, out int minCount, out int maxCount)
         {
             var rdmData = new List<List<AggregatedData>>();
             maxCount = 0;
+            minCount = int.MaxValue;
 
             for (int i = 0; i < paths.Count; i++)
             {
@@ -99,6 +100,11 @@ namespace RmobDatVisualizer.Service
 
                 if (localMax > maxCount)
                     maxCount = localMax;
+
+                var localMin = data.Min(d => d.Count);
+
+                if (localMin < minCount)
+                    minCount = localMin;    
 
                 rdmData.Add(data);
             }

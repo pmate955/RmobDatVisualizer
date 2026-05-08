@@ -128,9 +128,9 @@ namespace RmobDatVisualizer.Service
             return RmobColors[position];
         }
 
-        public static Color GetColorForValue(Color[] colors, int value, int max)
+        public static Color GetColorForValue(Color[] colors, int value, int min, int max)
         {
-            decimal percent = value / (decimal)(max - 1);
+            decimal percent = (value - min) / (decimal)(max - min);
             int position = (int)Math.Floor(percent * (colors.Count() - 1));
             return colors[position];
         }
